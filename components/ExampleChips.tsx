@@ -15,16 +15,16 @@ const EXAMPLES = [
 
 export const ExampleChips: React.FC<ExampleChipsProps> = ({ onSelect, disabled }) => {
   return (
-    <div className="flex flex-wrap items-center gap-2 pt-1 text-sm text-ink-3">
-      <span className="text-sm font-medium text-ink-3 select-none">Try an example:</span>
-      <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap items-center gap-1.5 pt-0.5 text-[13px] text-ink-3">
+      <span className="text-[13px] font-medium text-ink-3 select-none mr-0.5">Try an example:</span>
+      <div className="flex flex-wrap gap-1.5">
         {EXAMPLES.map((item, idx) => (
           <button
             key={idx}
             type="button"
             disabled={disabled}
             onClick={() => onSelect(item.url)}
-            className="min-h-[32px] px-3 py-1 rounded-full text-xs font-mono bg-surface-soft hover:bg-slate-200 text-ink-2 hover:text-ink border border-border transition-colors disabled:opacity-40 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+            className="h-[32px] px-2.5 rounded-full text-[13px] font-mono bg-surface-soft hover:bg-slate-200 text-ink-2 hover:text-ink border border-border transition-colors disabled:opacity-40 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 flex items-center"
           >
             {item.label}
           </button>

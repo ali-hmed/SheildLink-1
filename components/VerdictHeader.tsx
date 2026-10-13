@@ -75,22 +75,22 @@ export const VerdictHeader: React.FC<VerdictHeaderProps> = ({ verdict, score, fi
   };
 
   return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-border">
-      <div className="space-y-2">
-        <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-xl border ${meta.borderColor} ${meta.tintBg} ${meta.textColor}`}>
-            <Icon className="w-7 h-7 sm:w-8 sm:h-8" aria-hidden="true" />
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+      <div className="space-y-1 sm:space-y-1.5">
+        <div className="flex items-center gap-2.5">
+          <div className={`p-1.5 rounded-lg border ${meta.borderColor} ${meta.tintBg} ${meta.textColor}`}>
+            <Icon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
           </div>
-          <h3 className={`text-[28px] sm:text-[32px] font-bold tracking-tight ${meta.textColor}`}>
+          <h3 className={`text-[20px] sm:text-[23px] font-bold tracking-tight ${meta.textColor}`}>
             {meta.label}
           </h3>
         </div>
-        <p className="text-base sm:text-[17px] text-ink-2 max-w-xl leading-relaxed">
+        <p className="text-[14px] sm:text-[15px] text-ink-2 max-w-lg leading-relaxed">
           {getSummarySentence()}
         </p>
       </div>
 
-      <div className="shrink-0 self-start md:self-center">
+      <div className="shrink-0 self-start sm:self-center">
         <ScoreMeter score={score} verdict={verdict} />
       </div>
     </div>

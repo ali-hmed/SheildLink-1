@@ -42,12 +42,12 @@ export const UrlForm: React.FC<UrlFormProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full space-y-3"
+      className="w-full space-y-2.5"
       noValidate
       aria-label="URL Security Submission Form"
     >
-      {/* 64px desktop / 56px mobile input row */}
-      <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-white border border-border rounded-[20px] shadow-layered focus-within:ring-2 focus-within:ring-brand focus-within:ring-offset-2 transition-all p-1.5 sm:p-2 gap-2 sm:gap-3">
+      {/* 52px desktop / 48px mobile input row, radius 14px, horizontal padding 16px */}
+      <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-white border border-border rounded-[14px] shadow-layered focus-within:ring-2 focus-within:ring-brand focus-within:ring-offset-2 transition-all p-1 sm:p-1.5 gap-2 sm:gap-2">
         <label htmlFor="url-input" className="sr-only">
           Paste a link to analyze
         </label>
@@ -64,7 +64,7 @@ export const UrlForm: React.FC<UrlFormProps> = ({
           aria-invalid={activeError ? "true" : "false"}
           aria-describedby={activeError ? "url-input-error" : "url-input-helper"}
           disabled={isLoading}
-          className="w-full bg-transparent px-4 sm:px-5 h-[48px] sm:h-[52px] text-base sm:text-[18px] text-ink placeholder-ink-3 font-mono outline-none"
+          className="w-full bg-transparent px-3 sm:px-4 h-[44px] sm:h-[46px] text-[15px] sm:text-[16px] text-ink placeholder-ink-3 font-mono outline-none"
         />
 
         <div className="shrink-0 flex items-center justify-end">
@@ -72,11 +72,11 @@ export const UrlForm: React.FC<UrlFormProps> = ({
             type="submit"
             disabled={isLoading}
             aria-busy={isLoading}
-            className="w-full sm:w-auto h-[48px] min-w-[120px] px-6 inline-flex items-center justify-center gap-2 rounded-2xl bg-brand hover:bg-brand-hover active:bg-brand-press text-white font-semibold text-base sm:text-[17px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 cursor-pointer shadow-soft"
+            className="w-full sm:w-auto h-[48px] sm:h-[40px] min-w-[104px] px-4 inline-flex items-center justify-center gap-1.5 rounded-[10px] bg-brand hover:bg-brand-hover active:bg-brand-press text-white font-semibold text-[15px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 cursor-pointer shadow-soft"
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
+                <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
                 <span>Scanning...</span>
               </>
             ) : (
@@ -89,8 +89,8 @@ export const UrlForm: React.FC<UrlFormProps> = ({
         </div>
       </div>
 
-      {/* Helper text */}
-      <p id="url-input-helper" className="text-sm text-ink-3 px-2">
+      {/* Helper text: 14px */}
+      <p id="url-input-helper" className="text-[14px] text-ink-3 px-1">
         Paste a link. We analyze it without opening it.
       </p>
 
@@ -99,14 +99,14 @@ export const UrlForm: React.FC<UrlFormProps> = ({
         <div
           id="url-input-error"
           role="alert"
-          className="p-4 rounded-2xl bg-verdict-high-tint border border-verdict-high-border text-verdict-high-text text-sm flex items-center justify-between gap-3 animate-fadeInSlide"
+          className="p-3.5 rounded-[12px] bg-verdict-high-tint border border-verdict-high-border text-verdict-high-text text-[14px] flex items-center justify-between gap-3 animate-fadeInSlide"
         >
           <span>{activeError}</span>
           {onRetry && (
             <button
               type="button"
               onClick={onRetry}
-              className="text-xs font-semibold underline hover:no-underline px-2 py-1 rounded bg-white border border-verdict-high-border text-verdict-high-text shrink-0 cursor-pointer"
+              className="text-[13px] font-semibold underline hover:no-underline px-2 py-0.5 rounded bg-white border border-verdict-high-border text-verdict-high-text shrink-0 cursor-pointer"
             >
               Retry
             </button>

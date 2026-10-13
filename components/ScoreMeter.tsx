@@ -24,19 +24,19 @@ export const ScoreMeter: React.FC<ScoreMeterProps> = ({ score, verdict }) => {
   const clampedScore = Math.min(100, Math.max(0, score));
 
   return (
-    <div className="w-full sm:w-56 space-y-1.5">
+    <div className="w-full sm:w-[200px] max-w-[220px] space-y-1">
       <div className="flex items-baseline justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">
+        <span className="text-[12px] font-semibold uppercase tracking-wider text-ink-3">
           Heuristic risk score
         </span>
         <div className="flex items-baseline gap-1 font-mono">
-          <span className="text-2xl font-bold text-ink">{clampedScore}</span>
-          <span className="text-xs text-ink-3">/ 100</span>
+          <span className="text-[20px] font-bold text-ink leading-none">{clampedScore}</span>
+          <span className="text-[12px] text-ink-3">/ 100</span>
         </div>
       </div>
-      {/* Slim horizontal meter */}
+      {/* 6px tall horizontal meter */}
       <div
-        className="w-full h-2 rounded-full bg-slate-100 overflow-hidden"
+        className="w-full h-[6px] rounded-full bg-slate-100 overflow-hidden"
         role="progressbar"
         aria-valuenow={clampedScore}
         aria-valuemin={0}

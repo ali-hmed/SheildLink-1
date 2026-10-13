@@ -62,7 +62,7 @@ export const ChecksSummary: React.FC<ChecksSummaryProps> = ({ reputation, domain
         };
       case "not_found":
         return {
-          text: "Domain not found, this site may not exist",
+          text: "Domain not found, site may not exist",
           icon: AlertCircle,
           color: "text-verdict-suspicious-text bg-verdict-suspicious-tint border-verdict-suspicious-border",
         };
@@ -95,40 +95,40 @@ export const ChecksSummary: React.FC<ChecksSummaryProps> = ({ reputation, domain
   const DomIcon = domBadge.icon;
 
   return (
-    <div className="space-y-3 py-4 border-b border-border">
-      <h4 className="text-xs font-semibold uppercase tracking-wider text-ink-3">
+    <div className="space-y-2 py-3 border-b border-border">
+      <h4 className="text-[12px] font-semibold uppercase tracking-wider text-ink-3">
         Checks Performed
       </h4>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         {/* Check 1: URL Analysis */}
-        <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface-soft border border-border">
-          <span className="text-sm font-medium text-ink">URL analysis</span>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-verdict-ok-tint text-verdict-ok-text border border-verdict-ok-border">
-            <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
+        <div className="flex items-center justify-between p-2.5 rounded-[10px] bg-surface-soft border border-border">
+          <span className="text-[13px] font-medium text-ink">URL analysis</span>
+          <span className="h-[22px] inline-flex items-center gap-1.5 px-2 rounded-full text-[12px] font-semibold bg-verdict-ok-tint text-verdict-ok-text border border-verdict-ok-border">
+            <CheckCircle2 className="w-3 h-3" aria-hidden="true" />
             <span>Completed</span>
           </span>
         </div>
 
         {/* Check 2: Safe Browsing */}
-        <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface-soft border border-border">
-          <span className="text-sm font-medium text-ink">Google Safe Browsing</span>
+        <div className="flex items-center justify-between p-2.5 rounded-[10px] bg-surface-soft border border-border">
+          <span className="text-[13px] font-medium text-ink">Safe Browsing</span>
           <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${repBadge.color}`}
+            className={`h-[22px] inline-flex items-center gap-1.5 px-2 rounded-full text-[12px] font-semibold border ${repBadge.color}`}
           >
-            <RepIcon className="w-3.5 h-3.5" aria-hidden="true" />
-            <span className="truncate max-w-[140px]">{repBadge.text}</span>
+            <RepIcon className="w-3 h-3" aria-hidden="true" />
+            <span className="truncate max-w-[130px]">{repBadge.text}</span>
           </span>
         </div>
 
         {/* Check 3: Domain Lookup */}
-        <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface-soft border border-border">
-          <span className="text-sm font-medium text-ink">Domain lookup</span>
+        <div className="flex items-center justify-between p-2.5 rounded-[10px] bg-surface-soft border border-border">
+          <span className="text-[13px] font-medium text-ink">Domain lookup</span>
           <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${domBadge.color}`}
+            className={`h-[22px] inline-flex items-center gap-1.5 px-2 rounded-full text-[12px] font-semibold border ${domBadge.color}`}
           >
-            <DomIcon className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-            <span className="truncate max-w-[150px]">{domBadge.text}</span>
+            <DomIcon className="w-3 h-3 shrink-0" aria-hidden="true" />
+            <span className="truncate max-w-[140px]">{domBadge.text}</span>
           </span>
         </div>
       </div>

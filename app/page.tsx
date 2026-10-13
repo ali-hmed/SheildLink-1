@@ -106,17 +106,17 @@ export default function Home() {
       {/* Skip to main content accessible link */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 z-50 px-4 py-2 bg-brand text-white font-semibold rounded-lg shadow-soft outline-none ring-2 ring-brand ring-offset-2"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 z-50 px-3.5 py-1.5 bg-brand text-white font-semibold text-sm rounded-lg shadow-soft outline-none ring-2 ring-brand ring-offset-2"
       >
         Skip to main content
       </a>
 
-      {/* 1. Header */}
+      {/* 1. Header (60px tall) */}
       <Header health={health} />
 
-      {/* Main page content container (max 72rem, side padding 24px desktop / 16px mobile) */}
-      <main id="main-content" className="w-full max-w-[72rem] mx-auto px-4 sm:px-6 flex-1 space-y-12 sm:space-y-16">
-        {/* 2. Hero with soft glows, H1, subtext, and scan bar */}
+      {/* Main page content container: max-w 64rem (1024px), side padding 24px desktop / 16px mobile, section gap 48-56px desktop / 32px mobile */}
+      <main id="main-content" className="w-full max-w-[64rem] mx-auto px-4 sm:px-6 flex-1 space-y-8 sm:space-y-12">
+        {/* 2. Hero with calibrated soft glows, clamp H1, 16px subtext, and scan bar */}
         <Hero
           onScan={handleScan}
           isLoading={isLoading}
@@ -128,13 +128,13 @@ export default function Home() {
           onRetry={handleRetry}
         />
 
-        {/* 3. Results Section */}
-        <div ref={resultsRef} aria-live="polite" className="w-full max-w-4xl mx-auto">
+        {/* 3. Results Section: column max-width 44rem */}
+        <div ref={resultsRef} aria-live="polite" className="w-full max-w-[44rem] mx-auto">
           {isLoading && !currentResult && (
-            <div className="w-full p-8 rounded-3xl bg-surface-soft border border-border animate-pulse space-y-6" aria-busy="true">
-              <div className="h-8 bg-slate-200 rounded-lg w-1/3" />
-              <div className="h-4 bg-slate-200 rounded-lg w-2/3" />
-              <div className="h-24 bg-slate-200 rounded-2xl w-full" />
+            <div className="w-full p-4 sm:p-5 rounded-[14px] bg-surface-soft border border-border animate-pulse space-y-4" aria-busy="true">
+              <div className="h-6 bg-slate-200 rounded-md w-1/3" />
+              <div className="h-4 bg-slate-200 rounded-md w-2/3" />
+              <div className="h-20 bg-slate-200 rounded-lg w-full" />
             </div>
           )}
 
@@ -146,9 +146,9 @@ export default function Home() {
           )}
         </div>
 
-        {/* 4. Recent Scans (rendered only if history exists) */}
+        {/* 4. Recent Scans: column max-width 44rem (rendered only if history exists) */}
         {history.length > 0 && (
-          <div className="w-full max-w-4xl mx-auto">
+          <div className="w-full max-w-[44rem] mx-auto">
             <HistoryList
               history={history}
               onSelect={handleSelectFromHistory}

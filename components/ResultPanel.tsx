@@ -37,7 +37,7 @@ export const ResultPanel: React.FC<ResultPanelProps> = ({ result, onScanAnother 
   return (
     <section
       aria-label="URL Security Analysis Results"
-      className="w-full bg-white rounded-3xl border border-border shadow-layered p-6 sm:p-8 space-y-6 animate-fadeInSlide"
+      className="w-full bg-white rounded-[14px] border border-border shadow-layered p-4 sm:p-5 space-y-4 animate-fadeInSlide"
     >
       {/* 1. Verdict & Score Header */}
       <VerdictHeader
@@ -53,22 +53,22 @@ export const ResultPanel: React.FC<ResultPanelProps> = ({ result, onScanAnother 
       />
 
       {/* 3. Static Findings List */}
-      <div className="space-y-4 py-2 border-b border-border">
+      <div className="space-y-3 py-1 border-b border-border">
         <div className="flex items-center justify-between">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-ink-3">
+          <h4 className="text-[12px] font-semibold uppercase tracking-wider text-ink-3">
             Findings ({result.findings.length})
           </h4>
-          <span className="text-xs text-ink-3">
+          <span className="text-[12px] text-ink-3">
             Sorted by severity
           </span>
         </div>
 
         {sortedFindings.length === 0 ? (
-          <div className="py-8 px-6 rounded-2xl bg-surface-soft border border-border text-center text-sm sm:text-base text-ink-2">
+          <div className="py-6 px-4 rounded-[12px] bg-surface-soft border border-border text-center text-[14px] text-ink-2">
             No issues were detected by these checks. This does not guarantee the site is safe.
           </div>
         ) : (
-          <ol className="space-y-3 list-none p-0 m-0">
+          <ol className="space-y-2 list-none p-0 m-0">
             {sortedFindings.map((finding, idx) => (
               <FindingItem key={`${finding.id}-${idx}`} finding={finding} index={idx} />
             ))}
@@ -83,33 +83,33 @@ export const ResultPanel: React.FC<ResultPanelProps> = ({ result, onScanAnother 
         hostname={result.hostname}
       />
 
-      {/* 5. Primary Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-        <div className="flex flex-wrap items-center gap-3">
+      {/* 5. Primary Actions: 38-40px height, 14px text */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+        <div className="flex flex-wrap items-center gap-2.5">
           {/* Open site action */}
           <button
             type="button"
             onClick={() => setDialogOpen(true)}
-            className="min-h-[44px] inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-soft hover:bg-slate-200 text-ink font-semibold text-sm transition-colors border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 cursor-pointer"
+            className="h-[38px] sm:h-[40px] inline-flex items-center gap-1.5 px-4 rounded-[10px] bg-surface-soft hover:bg-slate-200 text-ink font-semibold text-[14px] transition-colors border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 cursor-pointer"
           >
             <span>Open site</span>
-            <ExternalLink className="w-4 h-4 text-ink-3" aria-hidden="true" />
+            <ExternalLink className="w-3.5 h-3.5 text-ink-3" aria-hidden="true" />
           </button>
 
           {/* Copy report */}
           <button
             type="button"
             onClick={handleCopyReport}
-            className="min-h-[44px] inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-soft hover:bg-slate-200 text-ink font-semibold text-sm transition-colors border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 cursor-pointer"
+            className="h-[38px] sm:h-[40px] inline-flex items-center gap-1.5 px-4 rounded-[10px] bg-surface-soft hover:bg-slate-200 text-ink font-semibold text-[14px] transition-colors border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 cursor-pointer"
           >
             {copied ? (
               <>
-                <Check className="w-4 h-4 text-verdict-ok-text" aria-hidden="true" />
+                <Check className="w-3.5 h-3.5 text-verdict-ok-text" aria-hidden="true" />
                 <span className="text-verdict-ok-text">Copied</span>
               </>
             ) : (
               <>
-                <Copy className="w-4 h-4 text-ink-3" aria-hidden="true" />
+                <Copy className="w-3.5 h-3.5 text-ink-3" aria-hidden="true" />
                 <span>Copy report</span>
               </>
             )}
@@ -120,9 +120,9 @@ export const ResultPanel: React.FC<ResultPanelProps> = ({ result, onScanAnother 
         <button
           type="button"
           onClick={onScanAnother}
-          className="min-h-[44px] inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-brand hover:text-brand-hover hover:bg-brand-tint font-semibold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 cursor-pointer"
+          className="h-[38px] sm:h-[40px] inline-flex items-center gap-1.5 px-3.5 rounded-[10px] text-brand hover:text-brand-hover hover:bg-brand-tint font-semibold text-[14px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 cursor-pointer"
         >
-          <RotateCcw className="w-4 h-4" aria-hidden="true" />
+          <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
           <span>Scan another</span>
         </button>
       </div>

@@ -61,15 +61,15 @@ export const HistoryList: React.FC<HistoryListProps> = ({
   };
 
   return (
-    <section aria-labelledby="history-heading" className="w-full pt-6">
-      <div className="flex items-center justify-between pb-3 border-b border-border">
-        <h3 id="history-heading" className="text-sm font-semibold uppercase tracking-wider text-ink-3">
+    <section aria-labelledby="history-heading" className="w-full pt-4">
+      <div className="flex items-center justify-between pb-2.5 border-b border-border">
+        <h3 id="history-heading" className="text-[13px] font-semibold uppercase tracking-wider text-ink-3">
           Recent Scans
         </h3>
         <button
           type="button"
           onClick={onClear}
-          className="text-xs font-medium text-ink-3 hover:text-ink transition-colors px-2 py-1 rounded hover:bg-surface-soft cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          className="text-[12px] font-medium text-ink-3 hover:text-ink transition-colors px-2 py-0.5 rounded hover:bg-surface-soft cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
         >
           Clear history
         </button>
@@ -83,19 +83,19 @@ export const HistoryList: React.FC<HistoryListProps> = ({
               key={item.id}
               type="button"
               onClick={() => onSelect(item.response)}
-              className="w-full py-3.5 px-3 flex items-center justify-between text-left hover:bg-surface-soft rounded-xl transition-colors group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+              className="w-full py-2.5 px-2 flex items-center justify-between text-left hover:bg-surface-soft rounded-[8px] transition-colors group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             >
-              <div className="flex items-center gap-3 min-w-0 pr-3">
-                <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${v.dotClass}`} aria-hidden="true" />
-                <span className={`text-xs font-semibold ${v.textClass} shrink-0`}>
+              <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                <span className={`w-2 h-2 rounded-full shrink-0 ${v.dotClass}`} aria-hidden="true" />
+                <span className={`text-[12px] font-semibold ${v.textClass} shrink-0`}>
                   {v.label}
                 </span>
-                <span className="text-sm font-mono text-ink-2 truncate group-hover:text-ink font-medium">
+                <span className="text-[13px] sm:text-[14px] font-mono text-ink-2 truncate group-hover:text-ink font-medium">
                   {item.hostname}
                 </span>
               </div>
 
-              <div className="flex items-center gap-3 shrink-0 text-xs text-ink-3">
+              <div className="flex items-center gap-2 shrink-0 text-[12px] text-ink-3">
                 <span className="font-mono">{item.risk_score} pts</span>
                 <span>•</span>
                 <span>{formatTimeAgo(item.scanned_at)}</span>
