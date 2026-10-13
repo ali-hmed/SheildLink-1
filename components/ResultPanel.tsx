@@ -1,15 +1,21 @@
 import React, { useState } from "react";
 import { ScanResponse } from "@/lib/types";
+import { VerdictHeader } from "./VerdictHeader";
+import { ChecksSummary } from "./ChecksSummary";
 import { FindingItem } from "./FindingItem";
+import { UrlDetails } from "./UrlDetails";
+import { OpenSiteDialog } from "./OpenSiteDialog";
 import { formatReportText } from "@/lib/report";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, ExternalLink, RotateCcw } from "lucide-react";
 
 interface ResultPanelProps {
   result: ScanResponse;
+  onScanAnother: () => void;
 }
 
-export const ResultPanel: React.FC<ResultPanelProps> = ({ result }) => {
+export const ResultPanel: React.FC<ResultPanelProps> = ({ result, onScanAnother }) => {
   const [copied, setCopied] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleCopyReport = async () => {
     const text = formatReportText(result);
@@ -28,147 +34,108 @@ export const ResultPanel: React.FC<ResultPanelProps> = ({ result }) => {
     return diff !== 0 ? diff : b.points - a.points;
   });
 
-  const getVerdictPresentation = () => {
-    switch (result.verdict) {
-      case "high_risk":
-        return {
-          label: "High Risk",
-          color: "text-rose-400",
-          barColor: "bg-rose-500",
-          desc: "Multiple high-severity risk signals or known threat indicators detected.",
-        };
-      case "suspicious":
-        return {
-          label: "Suspicious",
-          color: "text-amber-400",
-          barColor: "bg-amber-500",
-          desc: "Unusual structural patterns or risk indicators found in URL syntax.",
-        };
-      case "low_risk":
-        return {
-          label: "Low Risk",
-          color: "text-sky-400",
-          barColor: "bg-sky-500",
-          desc: "Minor anomalies present (such as unencrypted HTTP or shortener).",
-        };
-      case "no_issues_detected":
-      default:
-        return {
-          label: "No Issues Detected",
-          color: "text-emerald-400",
-          barColor: "bg-emerald-500",
-          desc: "No known deceptive heuristics or anomalies flagged by static rules.",
-        };
-    }
-  };
-
-  const verdict = getVerdictPresentation();
-
   return (
     <section
       aria-label="URL Security Analysis Results"
-      className="w-full space-y-4 animate-fadeIn"
+      className="w-full bg-white rounded-3xl border border-border shadow-layered p-6 sm:p-8 space-y-6 animate-fadeInSlide"
     >
-      {/* Primary Verdict & Summary Header */}
-      <div className="p-5 sm:p-6 rounded-xl bg-surface border border-surface-border shadow-soft">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2.5">
-              <span className={`w-2 h-2 rounded-full ${verdict.barColor}`} />
-              <h3 className={`text-base sm:text-lg font-semibold ${verdict.color}`}>
-                {verdict.label}
-              </h3>
-            </div>
-            <p className="text-xs text-slate-400 mt-1 max-w-md">
-              {verdict.desc}
-            </p>
-          </div>
+      {/* 1. Verdict & Score Header */}
+      <VerdictHeader
+        verdict={result.verdict}
+        score={result.risk_score}
+        findings={result.findings}
+      />
 
-          <div className="flex items-baseline sm:flex-col sm:items-end justify-between sm:justify-center border-t sm:border-t-0 border-surface-border/50 pt-3 sm:pt-0">
-            <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">
-              Heuristic risk score
-            </span>
-            <div className="flex items-baseline gap-1 mt-0.5">
-              <span className="text-3xl font-mono font-bold text-slate-100">
-                {result.risk_score}
-              </span>
-              <span className="text-xs font-mono text-slate-400">/ 100</span>
-            </div>
-          </div>
-        </div>
+      {/* 2. Checks Performed Summary */}
+      <ChecksSummary
+        reputation={result.reputation}
+        domainLookup={result.domain_lookup}
+      />
 
-        {/* Clean Target URL Info */}
-        <div className="mt-4 pt-4 border-t border-surface-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 min-w-0 font-mono">
-            <span className="text-slate-400 shrink-0">Host:</span>
-            <span className="text-slate-200 truncate select-all">{result.hostname}</span>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0">
-            {/* Reputation status pill */}
-            <span className="text-slate-400">
-              Safe Browsing:{" "}
-              <span className="text-slate-300">
-                {result.reputation.status === "checked"
-                  ? result.reputation.matches.length > 0
-                    ? "Flagged"
-                    : "Clean"
-                  : result.reputation.status === "not_configured"
-                  ? "Not configured"
-                  : result.reputation.status}
-              </span>
-            </span>
-
-            <button
-              type="button"
-              onClick={handleCopyReport}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-raised hover:bg-surface-border text-slate-300 text-xs transition-colors cursor-pointer"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
-                  <span className="text-emerald-400 font-medium">Copied</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
-                  <span>Copy report</span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Normalized URL row (plain text, never link) */}
-        <div className="mt-2 text-[11px] font-mono text-slate-400 truncate select-all">
-          <span className="text-slate-400 mr-1.5">Normalized:</span>
-          {result.normalized_url}
-        </div>
-      </div>
-
-      {/* Findings List */}
-      <div className="p-5 rounded-xl bg-surface border border-surface-border shadow-soft">
-        <div className="flex items-center justify-between mb-3">
-          <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-            Static Findings ({result.findings.length})
+      {/* 3. Static Findings List */}
+      <div className="space-y-4 py-2 border-b border-border">
+        <div className="flex items-center justify-between">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-ink-3">
+            Findings ({result.findings.length})
           </h4>
-          <span className="text-[11px] text-slate-400">
-            Rule-based signals
+          <span className="text-xs text-ink-3">
+            Sorted by severity
           </span>
         </div>
 
         {sortedFindings.length === 0 ? (
-          <div className="py-6 text-center text-xs text-slate-400">
-            No issues detected by these checks.
+          <div className="py-8 px-6 rounded-2xl bg-surface-soft border border-border text-center text-sm sm:text-base text-ink-2">
+            No issues were detected by these checks. This does not guarantee the site is safe.
           </div>
         ) : (
-          <ol className="space-y-2 list-none p-0 m-0">
+          <ol className="space-y-3 list-none p-0 m-0">
             {sortedFindings.map((finding, idx) => (
-              <FindingItem key={finding.id + idx} finding={finding} index={idx} />
+              <FindingItem key={`${finding.id}-${idx}`} finding={finding} index={idx} />
             ))}
           </ol>
         )}
       </div>
+
+      {/* 4. URL Details (Selectable text, not links) */}
+      <UrlDetails
+        inputUrl={result.input_url}
+        normalizedUrl={result.normalized_url}
+        hostname={result.hostname}
+      />
+
+      {/* 5. Primary Actions */}
+      <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Open site action */}
+          <button
+            type="button"
+            onClick={() => setDialogOpen(true)}
+            className="min-h-[44px] inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-soft hover:bg-slate-200 text-ink font-semibold text-sm transition-colors border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 cursor-pointer"
+          >
+            <span>Open site</span>
+            <ExternalLink className="w-4 h-4 text-ink-3" aria-hidden="true" />
+          </button>
+
+          {/* Copy report */}
+          <button
+            type="button"
+            onClick={handleCopyReport}
+            className="min-h-[44px] inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-soft hover:bg-slate-200 text-ink font-semibold text-sm transition-colors border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 cursor-pointer"
+          >
+            {copied ? (
+              <>
+                <Check className="w-4 h-4 text-verdict-ok-text" aria-hidden="true" />
+                <span className="text-verdict-ok-text">Copied</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4 text-ink-3" aria-hidden="true" />
+                <span>Copy report</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Scan another link */}
+        <button
+          type="button"
+          onClick={onScanAnother}
+          className="min-h-[44px] inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-brand hover:text-brand-hover hover:bg-brand-tint font-semibold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 cursor-pointer"
+        >
+          <RotateCcw className="w-4 h-4" aria-hidden="true" />
+          <span>Scan another</span>
+        </button>
+      </div>
+
+      {/* Open Site Confirmation Dialog */}
+      <OpenSiteDialog
+        isOpen={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        hostname={result.hostname}
+        normalizedUrl={result.normalized_url}
+        verdict={result.verdict}
+        domainLookup={result.domain_lookup}
+      />
     </section>
   );
 };

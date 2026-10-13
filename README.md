@@ -66,6 +66,8 @@ All heuristic weights are centrally defined and capped at **100**:
 | `excessive_url_length` | Total URL Length Exceeds 250 characters | Low | +15 pts |
 | `suspicious_keyword_alone` | Sensitive Keyword in URL Path | Low | +10 pts |
 | `missing_scheme_assumed_http` | Missing Scheme (Defaulted to `http://`) | Info | +5 pts |
+| `domain_resolves_private_ip` | Domain Resolves to Private / Loopback IP | Medium | +20 pts |
+| `domain_not_found` | Domain Does Not Resolve (NXDOMAIN) | Info | +0 pts |
 
 ### Categorical Verdicts:
 - **`0`**: `no_issues_detected`
@@ -139,6 +141,10 @@ All heuristic weights are centrally defined and capped at **100**:
     "matches": [],
     "message": "Not checked: Google Safe Browsing API key is not configured."
   },
+  "domain_lookup": {
+    "status": "skipped",
+    "message": "Not checked (IP address)"
+  },
   "scanned_at": "2026-10-13T18:25:00.000000+00:00"
 }
 ```
@@ -200,9 +206,34 @@ npm run lint
 
 ---
 
+---
+
+## Features & Safe Architecture
+
+### 1. "Ethereal Clarity" UI Design
+- Pure white background (`#FFFFFF`) with zero dark mode styles.
+- Soft diffused ambient light glows behind hero only, transitioning seamlessly to pure white.
+- Fully accessible contrast compliant with WCAG AA (all text/background pairs ≥ 4.5:1, headings ≥ 3:1).
+- Typography powered by **Plus Jakarta Sans** for UI and **JetBrains Mono** for technical URL structures.
+
+### 2. DNS-Only Domain Lookup ("Does this site exist?")
+- Asynchronous resolution using `asyncio.getaddrinfo` with an enforced 3.0-second timeout.
+- Pure DNS verification: never establishes HTTP, TLS, or TCP connections to the target and never follows redirects.
+- Evaluates domain existence (`resolves` vs `not_found` / NXDOMAIN), detecting private/loopback resolution risks (`domain_resolves_private_ip`).
+- Skips lookups for direct IP literal targets (`skipped`).
+
+### 3. Confirmed "Open Site" Flow
+- URLs are strictly non-clickable in results views to prevent accidental navigation.
+- Users can intentionally open a site via a confirmation modal (`<dialog>`).
+- Focus is trapped with the Cancel button auto-focused for safety. Esc cancels immediately.
+- Suspicious or high-risk URLs display high-prominence warnings and require explicit "Open anyway" confirmation.
+- Opens in a new tab with `rel="noopener noreferrer nofollow"` using strictly validated `http:`/`https:` schemes.
+
+---
+
 ## Limitations
 
-- **Heuristic Indicators**: Heuristic scoring detects structural anomalies and patterns. It can produce false positives (e.g. internal network diagnostic tools, IP addresses during local testing) and false negatives (e.g. freshly registered phishing domains hosted on standard HTTPS CDNs with no obvious lexical triggers).
+- **Heuristic Indicators**: Heuristic scoring detects structural anomalies and syntactic deception. It can produce false positives (e.g. internal network diagnostic tools, IP addresses during local testing) and false negatives (e.g. freshly registered phishing domains hosted on standard HTTPS CDNs with no obvious lexical triggers).
 - **No Remote Fetching**: LinkShield does not inspect destination HTML, JavaScript, SSL certificates, or HTTP redirect cascades.
 - **Threat List Propagation Delay**: Zero-day phishing campaigns often take hours or days to appear in public reputation blocklists like Google Safe Browsing.
-- **Not a Replacement for EDR / Secure Web Gateways**: LinkShield is a pre-click inspection utility, not an endpoint protection agent or active content scanner.
+- **Not a Replacement for EDR / Secure Web Gateways**: LinkShield is a pre-click inspection utility, not an endpoint protection agent or active content scanner. "No issues detected" is not a guarantee of safety.

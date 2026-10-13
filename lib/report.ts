@@ -18,12 +18,12 @@ export function formatReportText(response: ScanResponse): string {
     `Scanned At (UTC):   ${response.scanned_at}`,
     "------------------------------------------------------------",
     `Verdict:            ${verdictLabels[response.verdict] || response.verdict}`,
-    `Heuristic Score:    ${response.risk_score} / 100`,
+    `Heuristic Risk Score: ${response.risk_score} / 100`,
     "------------------------------------------------------------",
-    "REPUTATION STATUS (Google Safe Browsing):",
-    `Provider:           ${response.reputation.provider}`,
-    `Status:             ${response.reputation.status}`,
-    `Details:            ${response.reputation.message}`,
+    "CHECKS PERFORMED:",
+    `URL Analysis:       Completed`,
+    `Domain Lookup:      ${response.domain_lookup ? response.domain_lookup.message : "Not performed"}`,
+    `Safe Browsing:      ${response.reputation.provider} (${response.reputation.status}) - ${response.reputation.message}`,
   ];
 
   if (response.reputation.matches.length > 0) {

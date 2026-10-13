@@ -17,6 +17,13 @@ export interface ReputationResult {
   message: string;
 }
 
+export type DomainLookupStatus = "resolves" | "not_found" | "timeout" | "error" | "skipped";
+
+export interface DomainLookupResult {
+  status: DomainLookupStatus;
+  message: string;
+}
+
 export interface ScanResponse {
   input_url: string;
   normalized_url: string;
@@ -25,6 +32,7 @@ export interface ScanResponse {
   risk_score: number;
   findings: Finding[];
   reputation: ReputationResult;
+  domain_lookup: DomainLookupResult;
   scanned_at: string;
 }
 

@@ -8,6 +8,9 @@ from api.scoring import calculate_score, determine_verdict
 from api.reputation import reputation_service
 from api.config import settings
 
+from api.dns_check import check_domain_lookup
+import asyncio
+
 router = APIRouter(prefix="/api")
 
 # In-memory sliding-window IP rate limiter
@@ -53,8 +56,14 @@ async def scan(request: Request, body: ScanRequest):
             detail=f"Unable to parse or analyze URL: {str(e)}"
         )
 
-    # Perform reputation lookup (Safe Browsing)
-    rep_result = await reputation_service.check_url(normalized_url)
+    # Concurrently perform reputation lookup (Safe Browsing) and DNS-only domain lookup
+    rep_task = asyncio.create_task(reputation_service.check_url(normalized_url))
+    dns_task = asyncio.create_task(check_domain_lookup(hostname))
+
+    rep_result, (dns_result, dns_findings) = await asyncio.gather(rep_task, dns_task)
+
+    # Append any findings from DNS resolution
+    findings.extend(dns_findings)
 
     # Scoring & Verdict calculation
     has_match = len(rep_result.matches) > 0
@@ -69,5 +78,6 @@ async def scan(request: Request, body: ScanRequest):
         risk_score=score,
         findings=findings,
         reputation=rep_result,
+        domain_lookup=dns_result,
         scanned_at=datetime.now(timezone.utc).isoformat()
     )

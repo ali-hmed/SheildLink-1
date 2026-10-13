@@ -37,6 +37,10 @@ RULE_POINTS: dict[str, int] = {
     "heavy_percent_encoding": 20,
     "excessive_query_params": 15,
     "excessive_url_length": 15,
+
+    # Domain lookup
+    "domain_resolves_private_ip": 20,
+    "domain_not_found": 0,
 }
 
 # Verdict Thresholds:

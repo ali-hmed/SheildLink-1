@@ -22,6 +22,12 @@ class ReputationResult(BaseModel):
     matches: list[str] = Field(default_factory=list)
     message: str
 
+DomainLookupStatus = Literal["resolves", "not_found", "timeout", "error", "skipped"]
+
+class DomainLookupResult(BaseModel):
+    status: DomainLookupStatus
+    message: str
+
 class ScanResponse(BaseModel):
     input_url: str
     normalized_url: str
@@ -30,6 +36,7 @@ class ScanResponse(BaseModel):
     risk_score: int = Field(..., ge=0, le=100)
     findings: list[Finding]
     reputation: ReputationResult
+    domain_lookup: DomainLookupResult
     scanned_at: str
 
 class HealthResponse(BaseModel):
