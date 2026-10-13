@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 
 interface UrlFormProps {
   onScan: (url: string) => Promise<void>;
@@ -26,16 +26,11 @@ export const UrlForm: React.FC<UrlFormProps> = ({
       return;
     }
     if (trimmed.length > 2048) {
-      setLocalValidation("URL exceeds maximum length of 2048 characters.");
+      setLocalValidation("URL exceeds 2048 characters limit.");
       return;
     }
     setLocalValidation(null);
     onScan(trimmed);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputUrl(e.target.value);
-    if (localValidation) setLocalValidation(null);
   };
 
   const activeError = localValidation || error;
@@ -47,54 +42,54 @@ export const UrlForm: React.FC<UrlFormProps> = ({
       noValidate
       aria-label="URL Security Submission Form"
     >
-      <div className="relative flex flex-col sm:flex-row items-stretch gap-2">
-        <div className="relative flex-1">
-          <label htmlFor="url-input" className="sr-only">
-            Target URL to analyze
-          </label>
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-            <Search className="w-5 h-5" aria-hidden="true" />
-          </div>
-          <input
-            id="url-input"
-            type="text"
-            value={inputUrl}
-            onChange={handleInputChange}
-            placeholder="Enter URL to inspect (e.g. http://192.168.0.1:8080/login or https://example.com)"
-            aria-invalid={activeError ? "true" : "false"}
-            aria-describedby={activeError ? "input-error-msg" : undefined}
-            disabled={isLoading}
-            className={`w-full pl-10 pr-4 py-3 bg-surface border rounded-xl font-mono text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent transition-colors ${
-              activeError ? "border-rose-500/80 ring-1 ring-rose-500/50" : "border-surface-border"
-            }`}
-          />
-        </div>
-        <button
-          type="submit"
+      <div className="relative flex items-center bg-surface border border-surface-border rounded-xl focus-within:border-brand-teal/50 focus-within:ring-2 focus-within:ring-brand-teal/10 transition-all shadow-soft">
+        <label htmlFor="url-input" className="sr-only">
+          Target URL
+        </label>
+        <input
+          id="url-input"
+          type="text"
+          value={inputUrl}
+          onChange={(e) => {
+            setInputUrl(e.target.value);
+            if (localValidation) setLocalValidation(null);
+          }}
+          placeholder="Paste or type URL (e.g. https://example.com or http://192.168.0.1:8080)"
+          aria-invalid={activeError ? "true" : "false"}
+          aria-describedby={activeError ? "url-input-error" : undefined}
           disabled={isLoading}
-          aria-busy={isLoading}
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-teal hover:bg-brand-teal-hover active:bg-brand-teal-dim text-slate-950 font-bold text-sm tracking-wide transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-brand-teal disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin text-slate-950" aria-hidden="true" />
-              <span>Analyzing...</span>
-            </>
-          ) : (
-            <span>Scan URL</span>
-          )}
-        </button>
+          className="w-full bg-transparent px-4 py-3.5 text-sm text-slate-100 placeholder-slate-400 font-mono outline-none"
+        />
+        <div className="pr-2 shrink-0">
+          <button
+            type="submit"
+            disabled={isLoading}
+            aria-busy={isLoading}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-brand-teal hover:bg-brand-teal-hover active:bg-brand-dim text-slate-950 font-medium text-xs tracking-wide transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+                <span>Checking</span>
+              </>
+            ) : (
+              <>
+                <span>Analyze</span>
+                <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {activeError && (
-        <div
-          id="input-error-msg"
+        <p
+          id="url-input-error"
           role="alert"
-          className="text-xs text-rose-400 font-medium px-1 flex items-center gap-1.5"
+          className="text-xs text-rose-400 font-normal px-1"
         >
-          <span>•</span>
-          <span>{activeError}</span>
-        </div>
+          {activeError}
+        </p>
       )}
     </form>
   );

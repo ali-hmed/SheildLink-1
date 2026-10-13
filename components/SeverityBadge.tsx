@@ -1,6 +1,5 @@
 import React from "react";
 import { SeverityLevel } from "@/lib/types";
-import { AlertCircle, AlertTriangle, Info, ShieldAlert } from "lucide-react";
 
 interface SeverityBadgeProps {
   severity: SeverityLevel;
@@ -12,38 +11,38 @@ export const SeverityBadge: React.FC<SeverityBadgeProps> = ({ severity, classNam
     case "high":
       return (
         <span
-          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-300 border border-rose-500/30 ${className}`}
+          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20 ${className}`}
         >
-          <ShieldAlert className="w-3.5 h-3.5 shrink-0 text-rose-400" aria-hidden="true" />
-          <span>High Severity</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-400" aria-hidden="true" />
+          <span>High</span>
         </span>
       );
     case "medium":
       return (
         <span
-          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 ${className}`}
+          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 ${className}`}
         >
-          <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-400" aria-hidden="true" />
-          <span>Medium Severity</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" aria-hidden="true" />
+          <span>Medium</span>
         </span>
       );
     case "low":
       return (
         <span
-          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/30 ${className}`}
+          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium bg-sky-500/10 text-sky-400 border border-sky-500/20 ${className}`}
         >
-          <AlertCircle className="w-3.5 h-3.5 shrink-0 text-sky-400" aria-hidden="true" />
-          <span>Low Severity</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-sky-400" aria-hidden="true" />
+          <span>Low</span>
         </span>
       );
     case "info":
     default:
       return (
         <span
-          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-500/15 text-slate-300 border border-slate-500/30 ${className}`}
+          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium bg-slate-500/10 text-slate-400 border border-slate-500/20 ${className}`}
         >
-          <Info className="w-3.5 h-3.5 shrink-0 text-slate-400" aria-hidden="true" />
-          <span>Info Notice</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-400" aria-hidden="true" />
+          <span>Notice</span>
         </span>
       );
   }
