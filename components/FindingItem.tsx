@@ -7,26 +7,21 @@ interface FindingItemProps {
   index: number;
 }
 
-export const FindingItem: React.FC<FindingItemProps> = ({ finding, index }) => {
+export const FindingItem: React.FC<FindingItemProps> = ({ finding }) => {
   return (
-    <li className="p-3 sm:p-3.5 rounded-[12px] bg-surface-soft border border-border transition-colors hover:border-slate-300">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1.5">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <span className="text-[12px] font-mono font-medium text-ink-3 shrink-0">
-            #{String(index + 1).padStart(2, "0")}
-          </span>
-          <h4 className="text-[14px] sm:text-[15px] font-semibold text-ink truncate">
-            {finding.title}
-          </h4>
-        </div>
-        <div className="flex items-center gap-2.5 shrink-0">
-          <span className="text-[12px] font-mono font-semibold px-1.5 py-0.5 rounded bg-white border border-border text-ink-2">
-            +{finding.points}
+    <li className="p-3.5 rounded-xl border border-[#EAECF0] bg-white transition-colors">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 mb-1">
+        <h4 className="text-[14px] font-semibold text-[#111111]">
+          {finding.title}
+        </h4>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-[12px] font-mono text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded border border-[#EAECF0]">
+            +{finding.points} pts
           </span>
           <SeverityPill severity={finding.severity} />
         </div>
       </div>
-      <p className="text-[13px] sm:text-[14px] text-ink-2 leading-relaxed">
+      <p className="text-[13px] text-slate-600 leading-relaxed [overflow-wrap:anywhere]">
         {finding.explanation}
       </p>
     </li>

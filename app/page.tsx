@@ -8,8 +8,8 @@ import { HistoryList } from "@/components/HistoryList";
 import { HowItWorks } from "@/components/HowItWorks";
 import { Limitations } from "@/components/Limitations";
 import { Footer } from "@/components/Footer";
-import { ScanResponse, HealthResponse, HistoryItem } from "@/lib/types";
-import { scanUrl, fetchHealth, ApiError } from "@/lib/api";
+import { ScanResponse, HistoryItem } from "@/lib/types";
+import { scanUrl, ApiError } from "@/lib/api";
 import { loadHistory, saveScanToHistory, clearHistory } from "@/lib/history";
 
 export default function Home() {
@@ -18,7 +18,6 @@ export default function Home() {
   const [currentResult, setCurrentResult] = useState<ScanResponse | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [health, setHealth] = useState<HealthResponse | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -26,15 +25,13 @@ export default function Home() {
 
   useEffect(() => {
     setHistory(loadHistory());
-    fetchHealth()
-      .then((data) => setHealth(data))
-      .catch(() => setHealth(null));
   }, []);
 
   const handleScan = async (urlToScan: string) => {
     setIsLoading(true);
     setApiError(null);
     lastScannedUrl.current = urlToScan;
+    setInputUrl(urlToScan);
 
     try {
       const result = await scanUrl(urlToScan);
@@ -42,12 +39,9 @@ export default function Home() {
       const updatedHistory = saveScanToHistory(result);
       setHistory(updatedHistory);
 
-      // Smooth scroll to results and focus heading
       setTimeout(() => {
         if (resultsRef.current) {
           resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-          const heading = resultsRef.current.querySelector<HTMLElement>("h3");
-          heading?.focus();
         }
       }, 100);
     } catch (err: unknown) {
@@ -69,10 +63,9 @@ export default function Home() {
     }
   };
 
+  // Example chip click runs a REAL scan immediately
   const handleSelectExample = (url: string) => {
-    setInputUrl(url);
-    setApiError(null);
-    inputRef.current?.focus();
+    handleScan(url);
   };
 
   const handleSelectFromHistory = (item: ScanResponse) => {
@@ -102,21 +95,21 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-bg text-ink flex flex-col justify-between selection:bg-brand-tint selection:text-brand">
-      {/* Skip to main content accessible link */}
+    <div className="min-h-screen bg-white text-slate-600 flex flex-col justify-between overflow-x-hidden">
+      {/* Accessible skip link */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 z-50 px-3.5 py-1.5 bg-brand text-white font-semibold text-sm rounded-lg shadow-soft outline-none ring-2 ring-brand ring-offset-2"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 z-50 px-3.5 py-1.5 bg-accent text-white font-medium text-sm rounded-lg outline-none ring-2 ring-accent ring-offset-2"
       >
         Skip to main content
       </a>
 
-      {/* 1. Header (60px tall) */}
-      <Header health={health} />
+      {/* Header */}
+      <Header />
 
-      {/* Main page content container: max-w 64rem (1024px), side padding 24px desktop / 16px mobile, section gap 48-56px desktop / 32px mobile */}
-      <main id="main-content" className="w-full max-w-[64rem] mx-auto px-4 sm:px-6 flex-1 space-y-8 sm:space-y-12">
-        {/* 2. Hero with calibrated soft glows, clamp H1, 16px subtext, and scan bar */}
+      {/* Main Container: max-w ~720px, 20px side padding on mobile (px-5) */}
+      <main id="main-content" className="w-full max-w-[720px] mx-auto px-5 sm:px-6 flex-1 space-y-6 sm:space-y-8">
+        {/* Hero Section */}
         <Hero
           onScan={handleScan}
           isLoading={isLoading}
@@ -128,13 +121,26 @@ export default function Home() {
           onRetry={handleRetry}
         />
 
-        {/* 3. Results Section: column max-width 44rem */}
-        <div ref={resultsRef} aria-live="polite" className="w-full max-w-[44rem] mx-auto">
+        {/* Results Section */}
+        <div ref={resultsRef} aria-live="polite" className="w-full">
           {isLoading && !currentResult && (
-            <div className="w-full p-4 sm:p-5 rounded-[14px] bg-surface-soft border border-border animate-pulse space-y-4" aria-busy="true">
-              <div className="h-6 bg-slate-200 rounded-md w-1/3" />
-              <div className="h-4 bg-slate-200 rounded-md w-2/3" />
-              <div className="h-20 bg-slate-200 rounded-lg w-full" />
+            <div
+              className="w-full p-5 sm:p-6 rounded-2xl border border-[#EAECF0] bg-white space-y-4 animate-pulse"
+              aria-busy="true"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-slate-300" />
+                <div className="h-5 bg-slate-200 rounded-md w-28" />
+              </div>
+              <div className="h-4 bg-slate-100 rounded-md w-3/4" />
+              <div className="divide-y divide-[#EAECF0] rounded-xl border border-[#EAECF0] bg-white overflow-hidden mt-4">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="p-3.5 space-y-2">
+                    <div className="h-3.5 bg-slate-200 rounded w-24" />
+                    <div className="h-3 bg-slate-100 rounded w-full" />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -142,13 +148,14 @@ export default function Home() {
             <ResultPanel
               result={currentResult}
               onScanAnother={handleScanAnother}
+              onRescan={handleScan}
             />
           )}
         </div>
 
-        {/* 4. Recent Scans: column max-width 44rem (rendered only if history exists) */}
+        {/* Recent Scans (rendered only if history exists) */}
         {history.length > 0 && (
-          <div className="w-full max-w-[44rem] mx-auto">
+          <div className="w-full">
             <HistoryList
               history={history}
               onSelect={handleSelectFromHistory}
@@ -157,18 +164,18 @@ export default function Home() {
           </div>
         )}
 
-        {/* 5. How It Works */}
+        {/* How It Works */}
         <div className="w-full">
           <HowItWorks />
         </div>
 
-        {/* 6. Limitations */}
+        {/* Limitations */}
         <div className="w-full">
           <Limitations />
         </div>
       </main>
 
-      {/* 7. Footer */}
+      {/* Footer */}
       <Footer />
     </div>
   );

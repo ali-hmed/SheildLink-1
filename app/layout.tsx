@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-jakarta",
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -16,7 +16,7 @@ const jetbrains = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "LinkShield — URL Security Analyzer",
-  description: "Inspect a URL's structure and reputation before opening it. LinkShield never visits the link for you.",
+  description: "Check a link before you click it. Passive link analysis without opening the site.",
   other: {
     "color-scheme": "light",
   },
@@ -33,11 +33,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${jetbrains.variable}`}>
+    <html lang="en" className={`${inter.variable} ${jetbrains.variable}`}>
       <head>
         <meta name="color-scheme" content="light" />
       </head>
-      <body className="min-h-screen bg-bg text-ink antialiased selection:bg-brand-tint selection:text-brand font-sans">
+      <body className="min-h-screen bg-white text-slate-600 antialiased font-sans selection:bg-blue-50 selection:text-blue-600">
         {children}
       </body>
     </html>

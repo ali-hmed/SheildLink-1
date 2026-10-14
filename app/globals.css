@@ -5,52 +5,44 @@
 :root {
   color-scheme: light;
   --bg: #FFFFFF;
-  --surface-soft: #F7F8FB;
-  --border: #E7EAF1;
-  --ink: #0A0F1F;
-  --ink-2: #475569;
-  --ink-3: #64748B;
-  --brand: #2F4BFF;
-  --brand-hover: #2338E0;
-  --brand-press: #1D2FC4;
-  --brand-tint: #EEF1FF;
-  --focus-ring: #2F4BFF;
+  --border: #EAECF0;
+  --heading: #111111;
+  --body: #475569;
+  --muted: #94A3B8;
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-light: #EFF6FF;
 
-  /* Glow colors (hero only) */
-  --glow-1: #DDE4FF;
-  --glow-2: #D9F4F0;
-  --glow-3: #EADFFF;
+  /* Risk tokens (verdict & small dots only) */
+  --risk-safe: #16A34A;
+  --risk-safe-bg: #F0FDF4;
+  --risk-safe-border: #BBF7D0;
 
-  /* Verdict & Severity tokens */
-  --verdict-ok-text: #047857;
-  --verdict-ok-tint: #ECFDF5;
-  --verdict-ok-border: #A7F3D0;
+  --risk-low: #D97706;
+  --risk-low-bg: #FFFBEB;
+  --risk-low-border: #FDE68A;
 
-  --verdict-low-text: #0369A1;
-  --verdict-low-tint: #F0F9FF;
-  --verdict-low-border: #BAE6FD;
+  --risk-medium: #EA580C;
+  --risk-medium-bg: #FFF7ED;
+  --risk-medium-border: #FED7AA;
 
-  --verdict-suspicious-text: #B45309;
-  --verdict-suspicious-tint: #FFFBEB;
-  --verdict-suspicious-border: #FDE68A;
+  --risk-high: #DC2626;
+  --risk-high-bg: #FEF2F2;
+  --risk-high-border: #FECACA;
 
-  --verdict-high-text: #B91C1C;
-  --verdict-high-tint: #FEF2F2;
-  --verdict-high-border: #FECACA;
-
-  --verdict-info-text: #475569;
-  --verdict-info-tint: #F1F5F9;
-  --verdict-info-border: #E2E8F0;
+  --risk-gray: #64748B;
+  --risk-gray-bg: #F8FAFC;
+  --risk-gray-border: #E2E8F0;
 }
 
 html {
-  background-color: var(--bg);
+  background-color: #FFFFFF;
   color-scheme: light;
 }
 
 body {
-  background-color: var(--bg);
-  color: var(--ink);
+  background-color: #FFFFFF;
+  color: var(--body);
   font-size: 15px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -59,8 +51,8 @@ body {
 
 /* Subtle scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -73,14 +65,12 @@ body {
   background: #CBD5E1;
 }
 
-/* Touch targets raise to 44px on touch devices */
-@media (pointer: coarse) {
-  button, a[role="button"], input[type="submit"] {
-    min-height: 44px;
-  }
+/* 44px minimum tap target for buttons and touch interactive items */
+button, a[role="button"], input[type="submit"] {
+  min-height: 44px;
 }
 
-/* Reduced motion preference */
+/* Respect prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -90,25 +80,22 @@ body {
   }
 }
 
-@keyframes fadeInSlide {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(6px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
-.animate-fadeInSlide {
-  animation: fadeInSlide 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.animate-fade-in {
+  animation: fadeIn 180ms ease-out forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-fadeInSlide {
+  .animate-fade-in {
     animation: none;
     opacity: 1;
-    transform: none;
   }
 }

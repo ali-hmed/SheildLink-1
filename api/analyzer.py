@@ -1,7 +1,7 @@
 import ipaddress
 import re
 import unicodedata
-from urllib.parse import urlsplit, urlunsplit, parse_qsl, unquote
+from urllib.parse import urlsplit, urlunsplit, parse_qsl
 from api.schemas import Finding
 from api.scoring import RULE_POINTS
 
@@ -145,14 +145,14 @@ def analyze_url(raw_input: str) -> tuple[str, str, str, list[Finding]]:
     # 2. Scheme handling
     has_scheme = bool(re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*://", stripped_input))
     if not has_scheme:
-        # Prepend http:// and add an info finding
-        working_url = "http://" + stripped_input
+        # Prepend https:// and add neutral note with 0 points
+        working_url = "https://" + stripped_input
         findings.append(Finding(
-            id="missing_scheme_assumed_http",
-            title="Missing URL Scheme",
+            id="missing_scheme_note",
+            title="No Scheme Provided",
             severity="info",
-            points=RULE_POINTS["missing_scheme_assumed_http"],
-            explanation="No URL scheme (http:// or https://) was provided. Defaulted to http:// for heuristic analysis."
+            points=RULE_POINTS.get("missing_scheme_note", 0),
+            explanation="No scheme provided, analyzed as https://"
         ))
     else:
         working_url = stripped_input
@@ -170,8 +170,8 @@ def analyze_url(raw_input: str) -> tuple[str, str, str, list[Finding]]:
     if not parsed.netloc:
         raise ValidationError("URL does not contain a valid host or authority")
 
-    # 3. Scheme check (Plain HTTP)
-    if scheme == "http":
+    # 3. Scheme check (Plain HTTP) - only when user explicitly typed http://
+    if has_scheme and scheme == "http":
         findings.append(Finding(
             id="plain_http",
             title="Insecure Transport (Plain HTTP)",
@@ -210,8 +210,7 @@ def analyze_url(raw_input: str) -> tuple[str, str, str, list[Finding]]:
     if not host:
         raise ValidationError("URL does not contain a valid hostname")
 
-    # Host normalization
-    # Strip trailing dot
+    # Host normalization: strip trailing dot & lowercase
     host = host.rstrip(".").lower()
 
     # Punycode decoding for display
@@ -291,7 +290,7 @@ def analyze_url(raw_input: str) -> tuple[str, str, str, list[Finding]]:
 
     # 8. Host length & subdomains
     host_labels = [label for label in host.split(".") if label]
-    if len(host_labels) > 4:  # e.g., a.b.c.example.com has 5 labels -> > 3 subdomains before TLD+domain
+    if len(host_labels) > 4:  # e.g., a.b.c.d.example.com
         findings.append(Finding(
             id="excessive_subdomains",
             title="Excessive Subdomain Depth",
@@ -330,17 +329,15 @@ def analyze_url(raw_input: str) -> tuple[str, str, str, list[Finding]]:
             explanation=f"The top-level domain '.{tld}' has a documented statistical correlation with elevated spam, malware, or phishing campaigns."
         ))
 
-    # 11. Suspicious keywords in host / path
+    # 11. Suspicious keywords in host / path & Brand lookalikes
     url_full_text = f"{host}{parsed.path}".lower()
     matched_keywords = [kw for kw in SUSPICIOUS_KEYWORDS if kw in url_full_text]
 
-    # Check for Brand lookalike pattern (e.g., brand in subdomain or path of an unrelated domain)
-    # Determine base domain: last two labels if available (e.g., example.com)
+    # Check for Brand lookalike pattern in subdomains/path
     base_domain = ".".join(host_labels[-2:]) if len(host_labels) >= 2 else host
     subdomain_and_path = (".".join(host_labels[:-2]) if len(host_labels) > 2 else "") + parsed.path.lower()
 
     for brand in HIGH_PROFILE_BRANDS:
-        # If the brand appears in subdomain or path, but base domain does NOT equal brand.tld
         if brand in subdomain_and_path:
             if not base_domain.startswith(brand + "."):
                 findings.append(Finding(
@@ -353,7 +350,6 @@ def analyze_url(raw_input: str) -> tuple[str, str, str, list[Finding]]:
                 break
 
     if matched_keywords:
-        # Check if combined with other risk indicators (e.g. plain HTTP, IP host, unusual port, or brand lookalike)
         has_compound_signals = any(
             f.id in ("plain_http", "ip_address_host", "unusual_port", "brand_lookalike", "high_risk_tld")
             for f in findings
@@ -406,7 +402,6 @@ def analyze_url(raw_input: str) -> tuple[str, str, str, list[Finding]]:
         ))
 
     # Construct clean normalized URL
-    # Format netloc properly if port specified
     norm_netloc = host
     if port and not ((scheme == "http" and port == 80) or (scheme == "https" and port == 443)):
         norm_netloc = f"{host}:{port}"

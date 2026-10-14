@@ -12,39 +12,44 @@ export const HistoryList: React.FC<HistoryListProps> = ({
   onSelect,
   onClear,
 }) => {
-  if (history.length === 0) return null;
+  // Empty history: hide the section completely
+  if (!history || history.length === 0) return null;
 
-  const getVerdictPresentation = (verdict: string) => {
+  const getDotColor = (verdict: string) => {
     switch (verdict) {
+      case "site_not_found":
+        return "bg-slate-400";
       case "high_risk":
-        return {
-          dotClass: "bg-verdict-high-text",
-          label: "High Risk",
-          textClass: "text-verdict-high-text",
-        };
+        return "bg-red-600";
       case "suspicious":
-        return {
-          dotClass: "bg-verdict-suspicious-text",
-          label: "Suspicious",
-          textClass: "text-verdict-suspicious-text",
-        };
+        return "bg-amber-600";
       case "low_risk":
-        return {
-          dotClass: "bg-verdict-low-text",
-          label: "Low Risk",
-          textClass: "text-verdict-low-text",
-        };
+        return "bg-amber-500";
+      case "safe":
       case "no_issues_detected":
       default:
-        return {
-          dotClass: "bg-verdict-ok-text",
-          label: "No Issues",
-          textClass: "text-verdict-ok-text",
-        };
+        return "bg-green-600";
     }
   };
 
-  const formatTimeAgo = (isoString: string) => {
+  const getVerdictLabel = (verdict: string) => {
+    switch (verdict) {
+      case "site_not_found":
+        return "Site not found";
+      case "high_risk":
+        return "High Risk";
+      case "suspicious":
+        return "Medium Risk";
+      case "low_risk":
+        return "Low Risk";
+      case "safe":
+      case "no_issues_detected":
+      default:
+        return "Safe";
+    }
+  };
+
+  const formatRelativeTime = (isoString: string) => {
     try {
       const scannedDate = new Date(isoString);
       const diffMs = Date.now() - scannedDate.getTime();
@@ -61,48 +66,43 @@ export const HistoryList: React.FC<HistoryListProps> = ({
   };
 
   return (
-    <section aria-labelledby="history-heading" className="w-full pt-4">
-      <div className="flex items-center justify-between pb-2.5 border-b border-border">
-        <h3 id="history-heading" className="text-[13px] font-semibold uppercase tracking-wider text-ink-3">
+    <section aria-labelledby="history-heading" className="w-full pt-2">
+      <div className="flex items-center justify-between pb-2 border-b border-[#EAECF0]">
+        <h3 id="history-heading" className="text-[12px] font-semibold uppercase tracking-wider text-slate-400">
           Recent Scans
         </h3>
         <button
           type="button"
           onClick={onClear}
-          className="text-[12px] font-medium text-ink-3 hover:text-ink transition-colors px-2 py-0.5 rounded hover:bg-surface-soft cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          className="text-[12px] text-slate-400 hover:text-slate-600 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded px-1"
         >
           Clear history
         </button>
       </div>
 
-      <div className="divide-y divide-border">
-        {history.map((item) => {
-          const v = getVerdictPresentation(item.verdict);
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => onSelect(item.response)}
-              className="w-full py-2.5 px-2 flex items-center justify-between text-left hover:bg-surface-soft rounded-[8px] transition-colors group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-            >
-              <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                <span className={`w-2 h-2 rounded-full shrink-0 ${v.dotClass}`} aria-hidden="true" />
-                <span className={`text-[12px] font-semibold ${v.textClass} shrink-0`}>
-                  {v.label}
-                </span>
-                <span className="text-[13px] sm:text-[14px] font-mono text-ink-2 truncate group-hover:text-ink font-medium">
-                  {item.hostname}
-                </span>
-              </div>
+      <div className="divide-y divide-[#EAECF0]">
+        {history.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => onSelect(item.response)}
+            className="w-full py-2.5 px-1.5 flex items-center justify-between text-left hover:bg-slate-50 rounded-lg transition-colors group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <div className="flex items-center gap-2.5 min-w-0 pr-3">
+              <span className={`w-2 h-2 rounded-full shrink-0 ${getDotColor(item.verdict)}`} aria-hidden="true" />
+              <span className="text-[13px] sm:text-[14px] font-mono text-slate-700 group-hover:text-[#111111] truncate">
+                {item.hostname}
+              </span>
+              <span className="text-[12px] text-slate-400 shrink-0">
+                ({getVerdictLabel(item.verdict)})
+              </span>
+            </div>
 
-              <div className="flex items-center gap-2 shrink-0 text-[12px] text-ink-3">
-                <span className="font-mono">{item.risk_score} pts</span>
-                <span>•</span>
-                <span>{formatTimeAgo(item.scanned_at)}</span>
-              </div>
-            </button>
-          );
-        })}
+            <span className="text-[12px] text-slate-400 shrink-0 font-mono">
+              {formatRelativeTime(item.scanned_at)}
+            </span>
+          </button>
+        ))}
       </div>
     </section>
   );

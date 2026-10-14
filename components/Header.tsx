@@ -1,22 +1,23 @@
-import React from "react";
-import { HealthResponse } from "@/lib/types";
+"use client";
 
-interface HeaderProps {
-  health: HealthResponse | null;
-}
+import React, { useState } from "react";
+import { Menu, X } from "lucide-react";
 
-export const Header: React.FC<HeaderProps> = ({ health }) => {
+export const Header: React.FC = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
-    <header className="sticky top-0 z-40 w-full h-[60px] bg-bg/95 backdrop-blur-sm border-b border-border transition-colors">
-      <div className="max-w-[64rem] mx-auto h-full px-4 sm:px-6 flex items-center justify-between">
-        {/* Brand Link & Custom Shield SVG */}
+    <header className="sticky top-0 z-40 w-full h-[60px] bg-white border-b border-[#EAECF0]">
+      <div className="max-w-[720px] mx-auto h-full px-5 sm:px-6 flex items-center justify-between">
+        {/* Brand Logo & Name */}
         <a
           href="#"
-          className="flex items-center gap-2.5 text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 rounded-lg py-1 px-1 -ml-1 transition-opacity hover:opacity-90"
+          className="flex items-center gap-2.5 text-[#111111] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-lg py-1 transition-opacity hover:opacity-90"
           aria-label="LinkShield Home"
         >
+          {/* Keep existing shield logo exactly as is */}
           <svg
-            className="w-6 h-6 text-brand shrink-0"
+            className="w-6 h-6 text-accent shrink-0"
             viewBox="0 0 32 32"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -43,46 +44,60 @@ export const Header: React.FC<HeaderProps> = ({ health }) => {
               strokeLinecap="round"
             />
           </svg>
-          <span className="text-[18px] font-bold tracking-tight text-ink">
+          <span className="text-[17px] font-semibold tracking-tight text-[#111111]">
             LinkShield
           </span>
         </a>
 
-        {/* Navigation & Engine Status */}
-        <div className="flex items-center gap-5 sm:gap-6">
-          <nav aria-label="Page navigation" className="hidden sm:flex items-center gap-5 text-[14px] font-medium text-ink-2">
-            <a
-              href="#how-it-works"
-              className="hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 rounded py-1 px-1.5"
-            >
-              How it works
-            </a>
-            <a
-              href="#limitations"
-              className="hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 rounded py-1 px-1.5"
-            >
-              Limitations
-            </a>
-          </nav>
-
-          <div
-            className="flex items-center gap-2 text-[13px] font-mono px-2.5 py-1 rounded-full bg-surface-soft border border-border text-ink-3"
-            title={health?.reputation_provider === "configured" ? "Safe Browsing API configured" : "Local static rules active"}
+        {/* Desktop Navigation */}
+        <nav aria-label="Page navigation" className="hidden sm:flex items-center gap-6 text-[14px] text-slate-600">
+          <a
+            href="#how-it-works"
+            className="hover:text-[#111111] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded py-1 px-1.5"
           >
-            <span
-              className={`w-2 h-2 rounded-full shrink-0 ${
-                health?.status === "ok" ? "bg-emerald-500" : "bg-ink-3"
-              }`}
-              aria-hidden="true"
-            />
-            <span className="truncate max-w-[130px] sm:max-w-none">
-              {health?.reputation_provider === "configured"
-                ? "Safe Browsing active"
-                : "Static engine active"}
-            </span>
-          </div>
+            How it works
+          </a>
+          <a
+            href="#limitations"
+            className="hover:text-[#111111] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded py-1 px-1.5"
+          >
+            Limitations
+          </a>
+        </nav>
+
+        {/* Mobile menu button */}
+        <div className="sm:hidden flex items-center">
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 text-slate-600 hover:text-[#111111] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            aria-label="Toggle navigation menu"
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile menu dropdown */}
+      {mobileMenuOpen && (
+        <div className="sm:hidden bg-white border-b border-[#EAECF0] px-5 py-3 space-y-2 text-[15px] animate-fade-in shadow-sm">
+          <a
+            href="#how-it-works"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-2 text-slate-600 hover:text-[#111111]"
+          >
+            How it works
+          </a>
+          <a
+            href="#limitations"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-2 text-slate-600 hover:text-[#111111]"
+          >
+            Limitations
+          </a>
+        </div>
+      )}
     </header>
   );
 };

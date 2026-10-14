@@ -1,95 +1,101 @@
 import React from "react";
 import { VerdictLevel, Finding } from "@/lib/types";
 import { ScoreMeter } from "./ScoreMeter";
-import { CheckCircle2, AlertTriangle, AlertOctagon, Info } from "lucide-react";
 
 interface VerdictHeaderProps {
   verdict: VerdictLevel;
-  score: number;
+  score: number | null;
+  summary: string;
   findings: Finding[];
+  suggestedUrl?: string | null;
+  onRescan?: (url: string) => void;
 }
 
-export const VerdictHeader: React.FC<VerdictHeaderProps> = ({ verdict, score, findings }) => {
+export const VerdictHeader: React.FC<VerdictHeaderProps> = ({
+  verdict,
+  score,
+  summary,
+  suggestedUrl,
+  onRescan,
+}) => {
   const getVerdictMeta = () => {
     switch (verdict) {
+      case "site_not_found":
+        return {
+          label: "Site not found",
+          dotClass: "bg-slate-400",
+          textClass: "text-slate-700",
+        };
       case "high_risk":
         return {
           label: "High Risk",
-          Icon: AlertOctagon,
-          textColor: "text-verdict-high-text",
-          tintBg: "bg-verdict-high-tint",
-          borderColor: "border-verdict-high-border",
+          dotClass: "bg-red-600",
+          textClass: "text-red-700",
         };
       case "suspicious":
         return {
-          label: "Suspicious",
-          Icon: AlertTriangle,
-          textColor: "text-verdict-suspicious-text",
-          tintBg: "bg-verdict-suspicious-tint",
-          borderColor: "border-verdict-suspicious-border",
+          label: "Medium Risk",
+          dotClass: "bg-amber-600",
+          textClass: "text-amber-700",
         };
       case "low_risk":
         return {
           label: "Low Risk",
-          Icon: Info,
-          textColor: "text-verdict-low-text",
-          tintBg: "bg-verdict-low-tint",
-          borderColor: "border-verdict-low-border",
+          dotClass: "bg-amber-500",
+          textClass: "text-amber-700",
         };
+      case "safe":
       case "no_issues_detected":
       default:
         return {
-          label: "No Issues Detected",
-          Icon: CheckCircle2,
-          textColor: "text-verdict-ok-text",
-          tintBg: "bg-verdict-ok-tint",
-          borderColor: "border-verdict-ok-border",
+          label: "Safe",
+          dotClass: "bg-green-600",
+          textClass: "text-green-700",
         };
     }
   };
 
   const meta = getVerdictMeta();
-  const Icon = meta.Icon;
 
-  // Derive plain-English summary sentence from real findings
-  const getSummarySentence = () => {
-    if (findings.length === 0) {
-      return "No deceptive patterns or syntactic anomalies were identified by these checks.";
+  // Render summary sentence, with clickable suggestion if applicable
+  const renderSummary = () => {
+    if (verdict === "site_not_found" && suggestedUrl && onRescan) {
+      const displayDomain = suggestedUrl.replace(/^https?:\/\//, "");
+      return (
+        <span>
+          This domain does not exist in DNS and may be mistyped. Did you mean{" "}
+          <button
+            type="button"
+            onClick={() => onRescan(suggestedUrl)}
+            className="text-accent underline font-mono font-medium hover:text-accent-hover focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded cursor-pointer"
+          >
+            {displayDomain}
+          </button>
+          ?
+        </span>
+      );
     }
-    const highFindings = findings.filter((f) => f.severity === "high");
-    const mediumFindings = findings.filter((f) => f.severity === "medium");
-
-    if (highFindings.length > 0) {
-      const topTitle = highFindings[0].title;
-      return `Flagged high risk primarily due to ${topTitle.toLowerCase()}${
-        findings.length > 1 ? ` and ${findings.length - 1} other indicator(s)` : ""
-      }.`;
-    }
-    if (mediumFindings.length > 0) {
-      const topTitle = mediumFindings[0].title;
-      return `Potential risk observed: ${topTitle.toLowerCase()}${
-        findings.length > 1 ? ` alongside ${findings.length - 1} other signal(s)` : ""
-      }.`;
-    }
-    return `Minor anomalies detected (${findings[0].title.toLowerCase()}) that warrant awareness.`;
+    return summary;
   };
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
-      <div className="space-y-1 sm:space-y-1.5">
-        <div className="flex items-center gap-2.5">
-          <div className={`p-1.5 rounded-lg border ${meta.borderColor} ${meta.tintBg} ${meta.textColor}`}>
-            <Icon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
-          </div>
-          <h3 className={`text-[20px] sm:text-[23px] font-bold tracking-tight ${meta.textColor}`}>
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-[#EAECF0]">
+      <div className="space-y-1">
+        {/* Small status dot + verdict word. No big icon box! */}
+        <div className="flex items-center gap-2">
+          <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${meta.dotClass}`} aria-hidden="true" />
+          <h3 className={`text-[19px] sm:text-[21px] font-bold tracking-tight text-[#111111]`}>
             {meta.label}
           </h3>
         </div>
-        <p className="text-[14px] sm:text-[15px] text-ink-2 max-w-lg leading-relaxed">
-          {getSummarySentence()}
+
+        {/* One-sentence plain-language summary */}
+        <p className="text-[14px] sm:text-[15px] text-slate-600 leading-relaxed max-w-xl">
+          {renderSummary()}
         </p>
       </div>
 
+      {/* Slim score bar (only when score exists) */}
       <div className="shrink-0 self-start sm:self-center">
         <ScoreMeter score={score} verdict={verdict} />
       </div>

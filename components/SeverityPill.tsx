@@ -1,6 +1,5 @@
 import React from "react";
 import { SeverityLevel } from "@/lib/types";
-import { ShieldCheck, Info, AlertTriangle, AlertOctagon } from "lucide-react";
 
 interface SeverityPillProps {
   severity: SeverityLevel;
@@ -12,38 +11,34 @@ export const SeverityPill: React.FC<SeverityPillProps> = ({ severity, className 
     case "high":
       return (
         <span
-          className={`h-[24px] inline-flex items-center gap-1.5 px-2.5 rounded-full text-[13px] font-semibold bg-verdict-high-tint text-verdict-high-text border border-verdict-high-border shrink-0 ${className}`}
+          className={`h-[22px] inline-flex items-center px-2 rounded-md text-[12px] font-medium bg-red-50 text-red-700 border border-red-200 shrink-0 ${className}`}
         >
-          <AlertOctagon className="w-3.5 h-3.5" aria-hidden="true" />
-          <span>High Risk</span>
+          High
         </span>
       );
     case "medium":
       return (
         <span
-          className={`h-[24px] inline-flex items-center gap-1.5 px-2.5 rounded-full text-[13px] font-semibold bg-verdict-suspicious-tint text-verdict-suspicious-text border border-verdict-suspicious-border shrink-0 ${className}`}
+          className={`h-[22px] inline-flex items-center px-2 rounded-md text-[12px] font-medium bg-amber-50 text-amber-700 border border-amber-200 shrink-0 ${className}`}
         >
-          <AlertTriangle className="w-3.5 h-3.5" aria-hidden="true" />
-          <span>Medium Risk</span>
+          Medium
         </span>
       );
     case "low":
       return (
         <span
-          className={`h-[24px] inline-flex items-center gap-1.5 px-2.5 rounded-full text-[13px] font-semibold bg-verdict-low-tint text-verdict-low-text border border-verdict-low-border shrink-0 ${className}`}
+          className={`h-[22px] inline-flex items-center px-2 rounded-md text-[12px] font-medium bg-slate-100 text-slate-700 border border-slate-200 shrink-0 ${className}`}
         >
-          <Info className="w-3.5 h-3.5" aria-hidden="true" />
-          <span>Low Risk</span>
+          Low
         </span>
       );
     case "info":
     default:
       return (
         <span
-          className={`h-[24px] inline-flex items-center gap-1.5 px-2.5 rounded-full text-[13px] font-semibold bg-verdict-info-tint text-verdict-info-text border border-verdict-info-border shrink-0 ${className}`}
+          className={`h-[22px] inline-flex items-center px-2 rounded-md text-[12px] font-medium bg-slate-50 text-slate-600 border border-slate-200 shrink-0 ${className}`}
         >
-          <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
-          <span>Informational</span>
+          Info
         </span>
       );
   }

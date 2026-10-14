@@ -1,4 +1,7 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
+import { Copy, Check } from "lucide-react";
 
 interface UrlDetailsProps {
   inputUrl: string;
@@ -11,57 +14,65 @@ export const UrlDetails: React.FC<UrlDetailsProps> = ({
   normalizedUrl,
   hostname,
 }) => {
-  let punycodeDecoded: string | null = null;
-  if (hostname.toLowerCase().includes("xn--")) {
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const copyToClipboard = async (text: string, key: string) => {
     try {
-      const u = new URL(normalizedUrl.startsWith("http") ? normalizedUrl : `http://${normalizedUrl}`);
-      punycodeDecoded = u.hostname !== hostname ? u.hostname : null;
+      await navigator.clipboard.writeText(text);
+      setCopiedKey(key);
+      setTimeout(() => setCopiedKey(null), 2000);
     } catch {
-      punycodeDecoded = null;
+      // Fallback
     }
-  }
+  };
+
+  const rows = [
+    { key: "hostname", label: "Hostname", value: hostname },
+    { key: "normalized", label: "Normalized", value: normalizedUrl },
+    { key: "original", label: "Original", value: inputUrl },
+  ];
 
   return (
-    <div className="space-y-2 py-3 border-b border-border">
-      <h4 className="text-[12px] font-semibold uppercase tracking-wider text-ink-3">
+    <div className="space-y-3 py-4 border-b border-[#EAECF0]">
+      <h4 className="text-[12px] font-semibold uppercase tracking-wider text-slate-400">
         URL Details
       </h4>
 
-      <div className="space-y-1.5 font-mono text-[13px] sm:text-[14px]">
-        {/* Hostname */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2.5 p-2.5 rounded-[10px] bg-surface-soft border border-border">
-          <span className="text-[12px] font-sans font-medium text-ink-3 sm:w-24 shrink-0">
-            Hostname:
-          </span>
-          <span className="font-semibold text-ink break-all select-all">
-            {hostname}
-          </span>
-          {punycodeDecoded && (
-            <span className="text-[12px] text-ink-2 bg-white px-1.5 py-0.5 rounded border border-border font-mono">
-              Decoded: {punycodeDecoded}
-            </span>
-          )}
-        </div>
+      <div className="divide-y divide-[#EAECF0] rounded-xl border border-[#EAECF0] bg-white overflow-hidden">
+        {rows.map((row) => (
+          <div
+            key={row.key}
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 hover:bg-slate-50/50 transition-colors"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 min-w-0 flex-1">
+              <span className="text-[13px] font-medium text-slate-500 sm:w-24 shrink-0">
+                {row.label}
+              </span>
+              <span className="font-mono text-[13px] text-[#111111] break-all select-all">
+                {row.value}
+              </span>
+            </div>
 
-        {/* Normalized URL */}
-        <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2.5 p-2.5 rounded-[10px] bg-surface-soft border border-border">
-          <span className="text-[12px] font-sans font-medium text-ink-3 sm:w-24 shrink-0 pt-0.5">
-            Normalized:
-          </span>
-          <span className="text-ink-2 break-all select-all font-mono">
-            {normalizedUrl}
-          </span>
-        </div>
-
-        {/* Original Input */}
-        <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2.5 p-2.5 rounded-[10px] bg-surface-soft border border-border">
-          <span className="text-[12px] font-sans font-medium text-ink-3 sm:w-24 shrink-0 pt-0.5">
-            Original:
-          </span>
-          <span className="text-ink-3 break-all select-all font-mono">
-            {inputUrl}
-          </span>
-        </div>
+            <button
+              type="button"
+              onClick={() => copyToClipboard(row.value, row.key)}
+              className="self-end sm:self-center h-[34px] px-2.5 inline-flex items-center gap-1.5 rounded-lg border border-[#EAECF0] bg-white hover:bg-slate-50 text-[12px] font-medium text-slate-600 transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent cursor-pointer"
+              aria-label={`Copy ${row.label}`}
+            >
+              {copiedKey === row.key ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-green-600" aria-hidden="true" />
+                  <span className="text-green-700">Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
+                  <span>Copy</span>
+                </>
+              )}
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );

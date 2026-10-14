@@ -1,5 +1,7 @@
-import React, { useState } from "react";
-import { Loader2, ArrowRight } from "lucide-react";
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 
 interface UrlFormProps {
   onScan: (url: string) => Promise<void>;
@@ -22,11 +24,18 @@ export const UrlForm: React.FC<UrlFormProps> = ({
 }) => {
   const [localValidation, setLocalValidation] = useState<string | null>(null);
 
+  // Autofocus on desktop only
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth >= 768) {
+      inputRef?.current?.focus();
+    }
+  }, [inputRef]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = inputUrl.trim();
     if (!trimmed) {
-      setLocalValidation("Please enter a link to inspect.");
+      setLocalValidation("Please enter a URL to inspect.");
       return;
     }
     if (trimmed.length > 2048) {
@@ -42,12 +51,12 @@ export const UrlForm: React.FC<UrlFormProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full space-y-2.5"
+      className="w-full space-y-3"
       noValidate
       aria-label="URL Security Submission Form"
     >
-      {/* 52px desktop / 48px mobile input row, radius 14px, horizontal padding 16px */}
-      <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-white border border-border rounded-[14px] shadow-layered focus-within:ring-2 focus-within:ring-brand focus-within:ring-offset-2 transition-all p-1 sm:p-1.5 gap-2 sm:gap-2">
+      {/* Single input row: large rounded input, button inside on desktop, full-width under input on mobile */}
+      <div className="relative flex flex-col sm:flex-row items-stretch gap-2.5 sm:gap-0">
         <label htmlFor="url-input" className="sr-only">
           Paste a link to analyze
         </label>
@@ -60,53 +69,43 @@ export const UrlForm: React.FC<UrlFormProps> = ({
             setInputUrl(e.target.value);
             if (localValidation) setLocalValidation(null);
           }}
-          placeholder="Paste a link (e.g. https://example.com or http://192.168.0.1:8080)"
+          placeholder="Paste any URL (e.g. example.com or http://192.168.1.1)"
           aria-invalid={activeError ? "true" : "false"}
-          aria-describedby={activeError ? "url-input-error" : "url-input-helper"}
           disabled={isLoading}
-          className="w-full bg-transparent px-3 sm:px-4 h-[44px] sm:h-[46px] text-[15px] sm:text-[16px] text-ink placeholder-ink-3 font-mono outline-none"
+          className="w-full h-[52px] pl-4 sm:pr-[104px] text-[16px] text-[#111111] placeholder:text-slate-400 font-mono bg-white border border-[#EAECF0] rounded-xl focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
         />
 
-        <div className="shrink-0 flex items-center justify-end">
+        <div className="sm:absolute sm:right-1.5 sm:top-1.5 sm:bottom-1.5 flex items-center">
           <button
             type="submit"
             disabled={isLoading}
             aria-busy={isLoading}
-            className="w-full sm:w-auto h-[48px] sm:h-[40px] min-w-[104px] px-4 inline-flex items-center justify-center gap-1.5 rounded-[10px] bg-brand hover:bg-brand-hover active:bg-brand-press text-white font-semibold text-[15px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 cursor-pointer shadow-soft"
+            className="w-full sm:w-auto h-[46px] sm:h-[40px] px-5 inline-flex items-center justify-center gap-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-[15px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                <Loader2 className="w-4 h-4 animate-spin shrink-0" aria-hidden="true" />
                 <span>Scanning...</span>
               </>
             ) : (
-              <>
-                <span>Scan</span>
-                <ArrowRight className="w-4 h-4" aria-hidden="true" />
-              </>
+              <span>Scan</span>
             )}
           </button>
         </div>
       </div>
 
-      {/* Helper text: 14px */}
-      <p id="url-input-helper" className="text-[14px] text-ink-3 px-1">
-        Paste a link. We analyze it without opening it.
-      </p>
-
-      {/* Error display with Retry button */}
+      {/* Error display with clear message and Retry */}
       {activeError && (
         <div
-          id="url-input-error"
           role="alert"
-          className="p-3.5 rounded-[12px] bg-verdict-high-tint border border-verdict-high-border text-verdict-high-text text-[14px] flex items-center justify-between gap-3 animate-fadeInSlide"
+          className="p-3.5 rounded-xl bg-risk-high-bg border border-risk-high-border text-risk-high text-[14px] flex items-center justify-between gap-3 animate-fade-in"
         >
-          <span>{activeError}</span>
+          <span className="leading-snug">{activeError}</span>
           {onRetry && (
             <button
               type="button"
               onClick={onRetry}
-              className="text-[13px] font-semibold underline hover:no-underline px-2 py-0.5 rounded bg-white border border-verdict-high-border text-verdict-high-text shrink-0 cursor-pointer"
+              className="text-[13px] font-semibold underline hover:no-underline px-2.5 py-1 rounded bg-white border border-risk-high-border text-risk-high shrink-0 cursor-pointer min-h-[36px]"
             >
               Retry
             </button>

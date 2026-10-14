@@ -31,14 +31,16 @@ def test_dangerous_schemes_rejected():
             analyze_url(dangerous)
         assert "scheme" in str(exc.value).lower()
 
-def test_missing_scheme_assumed_http():
+def test_missing_scheme_defaults_to_https_no_penalty():
     input_url, norm_url, host, findings = analyze_url("example.com/test")
     assert input_url == "example.com/test"
-    assert norm_url.startswith("http://")
+    assert norm_url.startswith("https://")
     assert host == "example.com"
     finding_ids = [f.id for f in findings]
-    assert "missing_scheme_assumed_http" in finding_ids
-    assert "plain_http" in finding_ids
+    assert "missing_scheme_note" in finding_ids
+    assert "plain_http" not in finding_ids
+    # Ensure missing scheme adds 0 penalty points
+    assert calculate_score(findings) == 0
 
 def test_host_normalization_and_trailing_dot():
     _, norm_url, host, _ = analyze_url("https://EXAMPLE.COM./path")
@@ -47,7 +49,7 @@ def test_host_normalization_and_trailing_dot():
 
 # --- Detection Rules Tests ---
 
-def test_plain_http_finding():
+def test_plain_http_finding_only_when_explicit():
     _, _, _, findings = analyze_url("http://example.com")
     finding_ids = [f.id for f in findings]
     assert "plain_http" in finding_ids
@@ -117,7 +119,6 @@ def test_heavy_percent_encoding_and_query_params():
 # --- Scoring and Verdict Tests ---
 
 def test_scoring_sum_and_capping():
-    # Construct findings that exceed 100 points
     findings = [
         Finding(id="f1", title="F1", severity="high", points=60, explanation=""),
         Finding(id="f2", title="F2", severity="high", points=60, explanation=""),
@@ -126,7 +127,7 @@ def test_scoring_sum_and_capping():
     assert score == 100  # Capped at 100
 
 def test_verdict_thresholds():
-    assert determine_verdict(0) == "no_issues_detected"
+    assert determine_verdict(0) == "safe"
     assert determine_verdict(15) == "low_risk"
     assert determine_verdict(29) == "low_risk"
     assert determine_verdict(30) == "suspicious"
@@ -136,3 +137,7 @@ def test_verdict_thresholds():
 
     # Reputation match forces high_risk even if score is 0
     assert determine_verdict(0, has_reputation_match=True) == "high_risk"
+
+    # NXDOMAIN forces site_not_found
+    assert determine_verdict(0, is_domain_not_found=True) == "site_not_found"
+    assert determine_verdict(75, is_domain_not_found=True) == "site_not_found"

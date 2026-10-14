@@ -10,7 +10,7 @@ class ReputationProvider(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def check_url(self, url: str) -> ReputationResult:
+    async def check_url(self, url: str, domain_status: str = "resolves") -> ReputationResult:
         pass
 
 
@@ -28,13 +28,22 @@ class GoogleSafeBrowsingProvider(ReputationProvider):
     def is_configured(self) -> bool:
         return bool(self._api_key and self._api_key.strip())
 
-    async def check_url(self, url: str) -> ReputationResult:
+    async def check_url(self, url: str, domain_status: str = "resolves") -> ReputationResult:
+        # Never show "Clean" for a domain that does not resolve; show "Skipped (domain not found)"
+        if domain_status == "not_found":
+            return ReputationResult(
+                provider=self.name,
+                status="skipped",
+                matches=[],
+                message="Skipped (domain not found)"
+            )
+
         if not self.is_configured:
             return ReputationResult(
                 provider=self.name,
                 status="not_configured",
                 matches=[],
-                message="Not checked: Google Safe Browsing API key is not configured."
+                message="Not configured"
             )
 
         payload = {
@@ -56,7 +65,6 @@ class GoogleSafeBrowsingProvider(ReputationProvider):
         }
 
         try:
-            # Mask API key from logs/errors
             async with httpx.AsyncClient(timeout=self._timeout) as client:
                 response = await client.post(
                     self._endpoint,
@@ -83,7 +91,6 @@ class GoogleSafeBrowsingProvider(ReputationProvider):
                     message="No threat matches found in Google Safe Browsing lists."
                 )
 
-            # Non-200 responses map cleanly to status="error"
             return ReputationResult(
                 provider=self.name,
                 status="error",
@@ -99,7 +106,6 @@ class GoogleSafeBrowsingProvider(ReputationProvider):
                 message="Reputation provider lookup timed out after 5.0s."
             )
         except Exception:
-            # Never raise 500, return clean status="error" without leaking credentials
             return ReputationResult(
                 provider=self.name,
                 status="error",
