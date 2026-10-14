@@ -1,5 +1,7 @@
 import { ScanResponse, HealthResponse } from "./types";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+
 export class ApiError extends Error {
   status: number;
   constructor(message: string, status: number = 500) {
@@ -10,7 +12,7 @@ export class ApiError extends Error {
 }
 
 export async function fetchHealth(): Promise<HealthResponse> {
-  const res = await fetch("/api/health");
+  const res = await fetch(`${API_BASE}/api/health`);
   if (!res.ok) {
     throw new ApiError(`Health check failed with status ${res.status}`, res.status);
   }
@@ -18,7 +20,7 @@ export async function fetchHealth(): Promise<HealthResponse> {
 }
 
 export async function scanUrl(url: string): Promise<ScanResponse> {
-  const res = await fetch("/api/scan", {
+  const res = await fetch(`${API_BASE}/api/scan`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
