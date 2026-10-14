@@ -25,3 +25,8 @@ coverage/
 Thumbs.db
 .vscode/
 .idea/
+
+# Cloudflare & OpenNext
+.open-next/
+.wrangler/
+.dev.vars
