@@ -1,5 +1,8 @@
 import os
+from dotenv import load_dotenv
 from pydantic import BaseModel, Field
+
+load_dotenv()
 
 class Settings(BaseModel):
     google_safe_browsing_api_key: str = Field(

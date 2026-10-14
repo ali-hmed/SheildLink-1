@@ -16,7 +16,7 @@ class ReputationProvider(abc.ABC):
 
 class GoogleSafeBrowsingProvider(ReputationProvider):
     def __init__(self, api_key: str | None = None, timeout: float = 5.0):
-        self._api_key = api_key or settings.google_safe_browsing_api_key
+        self._api_key = settings.google_safe_browsing_api_key if api_key is None else api_key
         self._timeout = timeout
         self._endpoint = "https://safebrowsing.googleapis.com/v4/threatMatches:find"
 
