@@ -24,20 +24,28 @@ export const Hero: React.FC<HeroProps> = ({
   onRetry,
 }) => {
   return (
-    <section className="pt-10 sm:pt-16 pb-6 sm:pb-8 flex flex-col items-center text-center">
-      <div className="w-full max-w-[720px] mx-auto space-y-4">
-        {/* H1: 40-48px desktop / 30-34px mobile, tracking-tight, #111 */}
-        <h1 className="text-[30px] sm:text-[44px] font-bold text-[#111111] tracking-tight leading-[1.15]">
+    <section className="w-full max-w-[880px] mx-auto px-5 sm:px-8 pt-10 sm:pt-16">
+      <div className="flex flex-col items-center text-center">
+        {/*
+          Heading:
+          Single line at >=1024px: font-size clamp(2.25rem, 4.2vw, 3.25rem), font-weight 600,
+          letter-spacing -0.02em, line-height 1.1, whitespace-nowrap on desktop only.
+          Mobile (<640px): 2 balanced lines, 28-30px, line-height 1.15, centered, never overflows.
+        */}
+        <h1 className="text-[28px] sm:text-[34px] lg:text-[clamp(2.25rem,4.2vw,3.25rem)] font-semibold text-[#111111] tracking-[-0.02em] leading-[1.15] lg:leading-[1.1] [text-wrap:balance] lg:whitespace-nowrap text-center">
           Check a link before you click it.
         </h1>
 
-        {/* One-line subtext */}
-        <p className="text-[15px] sm:text-[16px] text-slate-600 max-w-[600px] mx-auto leading-normal">
+        {/*
+          Subtext:
+          16-17px desktop, 15px mobile, slate-600, max-w-[520px] centered, with 12px gap below heading.
+        */}
+        <p className="text-[15px] sm:text-[16px] lg:text-[17px] text-slate-600 max-w-[520px] mx-auto leading-normal text-center mt-3">
           Paste any URL. We analyze it without opening it.
         </p>
 
-        {/* Scan form and example chips */}
-        <div className="pt-4 text-left">
+        {/* Input container with 32px gap below subtext */}
+        <div className="w-full mt-8 text-left">
           <UrlForm
             onScan={onScan}
             isLoading={isLoading}
@@ -47,7 +55,10 @@ export const Hero: React.FC<HeroProps> = ({
             inputRef={inputRef}
             onRetry={onRetry}
           />
-          <ExampleChips onSelect={onSelectExample} disabled={isLoading} />
+          {/* Example chips with 16px gap below input */}
+          <div className="mt-4">
+            <ExampleChips onSelect={onSelectExample} disabled={isLoading} />
+          </div>
         </div>
       </div>
     </section>

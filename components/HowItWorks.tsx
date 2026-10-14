@@ -2,8 +2,8 @@ import React from "react";
 
 export const HowItWorks: React.FC = () => {
   return (
-    <section id="how-it-works" className="w-full pt-8 pb-4 border-t border-[#EAECF0]">
-      <div className="max-w-[720px] mx-auto space-y-4">
+    <section id="how-it-works" className="w-full max-w-[760px] mx-auto px-5 sm:px-8 pt-8 sm:pt-10 border-t border-[#EAECF0]">
+      <div className="space-y-4">
         <h2 className="text-[18px] sm:text-[20px] font-bold text-[#111111] tracking-tight">
           How it works
         </h2>

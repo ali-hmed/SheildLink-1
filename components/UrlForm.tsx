@@ -55,8 +55,12 @@ export const UrlForm: React.FC<UrlFormProps> = ({
       noValidate
       aria-label="URL Security Submission Form"
     >
-      {/* Single input row: large rounded input, button inside on desktop, full-width under input on mobile */}
-      <div className="relative flex flex-col sm:flex-row items-stretch gap-2.5 sm:gap-0">
+      {/* 
+        Desktop (>=640px): one single row, input flex-1 h-56px, rounded-xl, 1px border.
+        Scan button inside field on the right (h-48px), fixed horizontal padding, never wrapping.
+        Mobile (<640px): stacked in two lines, input line 1, button line 2 (48px, gap-3).
+      */}
+      <div className="flex flex-col sm:relative gap-3 sm:gap-0 w-full">
         <label htmlFor="url-input" className="sr-only">
           Paste a link to analyze
         </label>
@@ -69,29 +73,29 @@ export const UrlForm: React.FC<UrlFormProps> = ({
             setInputUrl(e.target.value);
             if (localValidation) setLocalValidation(null);
           }}
-          placeholder="Paste any URL (e.g. example.com or http://192.168.1.1)"
+          placeholder="Paste any URL, e.g. example.com"
           aria-invalid={activeError ? "true" : "false"}
           disabled={isLoading}
-          className="w-full h-[52px] pl-4 sm:pr-[104px] text-[16px] text-[#111111] placeholder:text-slate-400 font-mono bg-white border border-[#EAECF0] rounded-xl focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
+          className={`w-full h-[48px] sm:h-[56px] px-4 sm:pr-[118px] text-[16px] rounded-xl border border-[#EAECF0] bg-white outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors truncate ${
+            inputUrl ? "font-mono text-[#111111]" : "font-sans text-slate-400"
+          } placeholder:font-sans placeholder:text-slate-400`}
         />
 
-        <div className="sm:absolute sm:right-1.5 sm:top-1.5 sm:bottom-1.5 flex items-center">
-          <button
-            type="submit"
-            disabled={isLoading}
-            aria-busy={isLoading}
-            className="w-full sm:w-auto h-[46px] sm:h-[40px] px-5 inline-flex items-center justify-center gap-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-[15px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin shrink-0" aria-hidden="true" />
-                <span>Scanning...</span>
-              </>
-            ) : (
-              <span>Scan</span>
-            )}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={isLoading}
+          aria-busy={isLoading}
+          className="w-full sm:w-auto h-[48px] px-6 inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-lg bg-accent hover:bg-accent-hover text-white text-[15px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer shrink-0 sm:absolute sm:right-1 sm:top-1"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin shrink-0" aria-hidden="true" />
+              <span>Scanning...</span>
+            </>
+          ) : (
+            <span>Scan</span>
+          )}
+        </button>
       </div>
 
       {/* Error display with clear message and Retry */}

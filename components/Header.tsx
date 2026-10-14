@@ -1,18 +1,13 @@
-"use client";
-
-import React, { useState } from "react";
-import { Menu, X } from "lucide-react";
+import React from "react";
 
 export const Header: React.FC = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   return (
-    <header className="sticky top-0 z-40 w-full h-[60px] bg-white border-b border-[#EAECF0]">
-      <div className="max-w-[720px] mx-auto h-full px-5 sm:px-6 flex items-center justify-between">
-        {/* Brand Logo & Name */}
+    <header className="sticky top-0 z-40 w-full h-[56px] sm:h-[64px] bg-white border-b border-[#EAECF0]">
+      <div className="max-w-[1200px] mx-auto h-full px-5 sm:px-8 flex items-center justify-between whitespace-nowrap">
+        {/* Brand Logo & Name - Far Left */}
         <a
           href="#"
-          className="flex items-center gap-2.5 text-[#111111] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-lg py-1 transition-opacity hover:opacity-90"
+          className="flex items-center gap-2.5 text-[#111111] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-lg py-1 transition-opacity hover:opacity-90 shrink-0"
           aria-label="LinkShield Home"
         >
           {/* Keep existing shield logo exactly as is */}
@@ -49,55 +44,25 @@ export const Header: React.FC = () => {
           </span>
         </a>
 
-        {/* Desktop Navigation */}
-        <nav aria-label="Page navigation" className="hidden sm:flex items-center gap-6 text-[14px] text-slate-600">
+        {/* Navigation - Far Right */}
+        <nav
+          aria-label="Page navigation"
+          className="flex items-center gap-5 sm:gap-8 text-sm text-slate-600 shrink-0"
+        >
           <a
             href="#how-it-works"
-            className="hover:text-[#111111] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded py-1 px-1.5"
+            className="px-1 py-2 hover:text-[#111111] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
           >
             How it works
           </a>
           <a
             href="#limitations"
-            className="hover:text-[#111111] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded py-1 px-1.5"
+            className="px-1 py-2 hover:text-[#111111] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
           >
             Limitations
           </a>
         </nav>
-
-        {/* Mobile menu button */}
-        <div className="sm:hidden flex items-center">
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-slate-600 hover:text-[#111111] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            aria-label="Toggle navigation menu"
-            aria-expanded={mobileMenuOpen}
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
       </div>
-
-      {/* Mobile menu dropdown */}
-      {mobileMenuOpen && (
-        <div className="sm:hidden bg-white border-b border-[#EAECF0] px-5 py-3 space-y-2 text-[15px] animate-fade-in shadow-sm">
-          <a
-            href="#how-it-works"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-slate-600 hover:text-[#111111]"
-          >
-            How it works
-          </a>
-          <a
-            href="#limitations"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-slate-600 hover:text-[#111111]"
-          >
-            Limitations
-          </a>
-        </div>
-      )}
     </header>
   );
 };

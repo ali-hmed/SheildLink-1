@@ -63,7 +63,6 @@ export default function Home() {
     }
   };
 
-  // Example chip click runs a REAL scan immediately
   const handleSelectExample = (url: string) => {
     handleScan(url);
   };
@@ -104,12 +103,11 @@ export default function Home() {
         Skip to main content
       </a>
 
-      {/* Header */}
+      {/* Header container: max-w-[1200px] */}
       <Header />
 
-      {/* Main Container: max-w ~720px, 20px side padding on mobile (px-5) */}
-      <main id="main-content" className="w-full max-w-[720px] mx-auto px-5 sm:px-6 flex-1 space-y-6 sm:space-y-8">
-        {/* Hero Section */}
+      <main id="main-content" className="w-full flex-1">
+        {/* Hero container: max-w-[880px] */}
         <Hero
           onScan={handleScan}
           isLoading={isLoading}
@@ -121,41 +119,47 @@ export default function Home() {
           onRetry={handleRetry}
         />
 
-        {/* Results Section */}
-        <div ref={resultsRef} aria-live="polite" className="w-full">
-          {isLoading && !currentResult && (
-            <div
-              className="w-full p-5 sm:p-6 rounded-2xl border border-[#EAECF0] bg-white space-y-4 animate-pulse"
-              aria-busy="true"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-slate-300" />
-                <div className="h-5 bg-slate-200 rounded-md w-28" />
+        {/* Results Section container: max-w-[760px], 56px desktop / 40px mobile below hero */}
+        {(isLoading || currentResult) && (
+          <div
+            ref={resultsRef}
+            aria-live="polite"
+            className="w-full max-w-[760px] mx-auto px-5 sm:px-8 mt-10 sm:mt-14"
+          >
+            {isLoading && !currentResult && (
+              <div
+                className="w-full p-5 sm:p-6 rounded-2xl border border-[#EAECF0] bg-white space-y-4 animate-pulse"
+                aria-busy="true"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-slate-300" />
+                  <div className="h-5 bg-slate-200 rounded-md w-28" />
+                </div>
+                <div className="h-4 bg-slate-100 rounded-md w-3/4" />
+                <div className="divide-y divide-[#EAECF0] rounded-xl border border-[#EAECF0] bg-white overflow-hidden mt-4">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="p-3.5 space-y-2">
+                      <div className="h-3.5 bg-slate-200 rounded w-24" />
+                      <div className="h-3 bg-slate-100 rounded w-full" />
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="h-4 bg-slate-100 rounded-md w-3/4" />
-              <div className="divide-y divide-[#EAECF0] rounded-xl border border-[#EAECF0] bg-white overflow-hidden mt-4">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="p-3.5 space-y-2">
-                    <div className="h-3.5 bg-slate-200 rounded w-24" />
-                    <div className="h-3 bg-slate-100 rounded w-full" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+            )}
 
-          {currentResult && (
-            <ResultPanel
-              result={currentResult}
-              onScanAnother={handleScanAnother}
-              onRescan={handleScan}
-            />
-          )}
-        </div>
+            {currentResult && (
+              <ResultPanel
+                result={currentResult}
+                onScanAnother={handleScanAnother}
+                onRescan={handleScan}
+              />
+            )}
+          </div>
+        )}
 
-        {/* Recent Scans (rendered only if history exists) */}
+        {/* Recent Scans container: max-w-[760px], 72px desktop / 48px mobile gap */}
         {history.length > 0 && (
-          <div className="w-full">
+          <div className="w-full max-w-[760px] mx-auto px-5 sm:px-8 mt-12 sm:mt-[72px]">
             <HistoryList
               history={history}
               onSelect={handleSelectFromHistory}
@@ -164,18 +168,18 @@ export default function Home() {
           </div>
         )}
 
-        {/* How It Works */}
-        <div className="w-full">
+        {/* How It Works container: max-w-[760px], 72px desktop / 48px mobile gap */}
+        <div className="w-full mt-12 sm:mt-[72px]">
           <HowItWorks />
         </div>
 
-        {/* Limitations */}
-        <div className="w-full">
+        {/* Limitations container: max-w-[760px], 72px desktop / 48px mobile gap */}
+        <div className="w-full mt-12 sm:mt-[72px]">
           <Limitations />
         </div>
       </main>
 
-      {/* Footer */}
+      {/* Footer container: max-w-[1200px] */}
       <Footer />
     </div>
   );
