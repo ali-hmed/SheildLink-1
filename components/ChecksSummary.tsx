@@ -67,6 +67,9 @@ export const ChecksSummary: React.FC<ChecksSummaryProps> = ({ checks }) => {
         if (checks.domain_registration.status === "available") {
           return <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-0.5" aria-hidden="true" />;
         }
+        if (checks.domain_registration.status === "not_found") {
+          return <AlertCircle className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" aria-hidden="true" />;
+        }
         return <MinusCircle className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" aria-hidden="true" />;
       },
     },

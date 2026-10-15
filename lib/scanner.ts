@@ -38,6 +38,8 @@ export const RULE_POINTS: Record<string, number> = {
   domain_resolves_private_ip: 20,
   domain_not_found: 0,
   invalid_tls_certificate: 25,
+  very_young_domain: 20,
+  young_domain: 10,
 };
 
 const KNOWN_SHORTENERS = new Set([
@@ -749,12 +751,82 @@ export function checkLookalikeDomain(hostname: string): { check: LookalikeCheck;
   };
 }
 
+let tsBootstrapCache: Record<string, string> | null = null;
+let tsBootstrapCacheExpiry = 0;
+
+async function getTsRegistryBaseUrl(tld: string): Promise<string | null> {
+  const now = Date.now();
+  if (!tsBootstrapCache || now >= tsBootstrapCacheExpiry) {
+    try {
+      const resp = await fetch("https://data.iana.org/rdap/dns.json", {
+        headers: {
+          Accept: "application/json",
+          "User-Agent": "ShieldLink/1.0 (Security Scanner; +https://shieldlink.dev)",
+        },
+        signal: AbortSignal.timeout(8000),
+      });
+      if (resp.ok) {
+        const data = (await resp.json()) as { services?: Array<[string[], string[]]> };
+        const mapping: Record<string, string> = {};
+        for (const entry of data.services || []) {
+          if (Array.isArray(entry) && entry.length >= 2 && Array.isArray(entry[0]) && Array.isArray(entry[1])) {
+            const [tlds, urls] = entry;
+            const chosen = urls.find((u) => u.startsWith("https://")) || urls[0];
+            if (chosen) {
+              const normalized = chosen.endsWith("/") ? chosen : chosen + "/";
+              for (const t of tlds) {
+                mapping[t.toLowerCase()] = normalized;
+              }
+            }
+          }
+        }
+        tsBootstrapCache = mapping;
+        tsBootstrapCacheExpiry = now + 86400 * 1000;
+      }
+    } catch {
+      // Ignore cache fetch errors
+    }
+  }
+  return tsBootstrapCache ? tsBootstrapCache[tld.toLowerCase()] || null : null;
+}
+
+function extractRegistrableDomainAndTld(hostname: string): { registrableDomain: string; tld: string } {
+  let punyHost = hostname.trim().toLowerCase().replace(/\.+$/, "");
+  try {
+    punyHost = new URL("http://" + punyHost).hostname;
+  } catch {
+    // Keep punyHost as is
+  }
+
+  const parts = punyHost.split(".");
+  if (parts.length <= 1) {
+    return { registrableDomain: punyHost, tld: "" };
+  }
+
+  const tld = parts[parts.length - 1];
+  const secondLevel = parts.length >= 2 ? parts[parts.length - 2] : "";
+
+  // Common country-code second level domains like .co.uk, .com.au, etc.
+  const commonCcSlds = new Set(["co", "com", "org", "net", "gov", "edu", "ac"]);
+  if (parts.length >= 3 && tld.length === 2 && commonCcSlds.has(secondLevel)) {
+    return {
+      registrableDomain: parts.slice(-3).join("."),
+      tld,
+    };
+  }
+
+  return {
+    registrableDomain: parts.slice(-2).join("."),
+    tld,
+  };
+}
+
 export async function checkRdap(hostname: string, domainStatus: string): Promise<DomainRegistrationCheck> {
   if (isIpLiteral(hostname)) {
     return {
       name: "Domain registration",
       status: "skipped",
-      summary: "Skipped (IP address)",
+      summary: "Not applicable for IP addresses",
     };
   }
 
@@ -766,16 +838,24 @@ export async function checkRdap(hostname: string, domainStatus: string): Promise
     };
   }
 
-  const parts = hostname.split(".");
-  const baseDomain = parts.length >= 2 ? parts.slice(-2).join(".") : hostname;
+  const { registrableDomain, tld } = extractRegistrableDomainAndTld(hostname);
 
   try {
-    const res = await fetch(`https://rdap.org/domain/${encodeURIComponent(baseDomain)}`, {
-      headers: { Accept: "application/rdap+json" },
-      signal: AbortSignal.timeout(2500),
+    const registryBase = await getTsRegistryBaseUrl(tld);
+    const isFallback = !registryBase;
+    const rdapUrl = registryBase
+      ? `${registryBase}domain/${registrableDomain}`
+      : `https://rdap.org/domain/${encodeURIComponent(registrableDomain)}`;
+
+    const res = await fetch(rdapUrl, {
+      headers: {
+        Accept: "application/rdap+json",
+        "User-Agent": "ShieldLink/1.0 (Security Scanner; +https://shieldlink.dev)",
+      },
+      signal: AbortSignal.timeout(8000),
     });
 
-    if (res.ok) {
+    if (res.status === 200) {
       const data = (await res.json()) as {
         entities?: Array<{ roles?: string[]; vcardArray?: any[]; name?: string; handle?: string }>;
         events?: Array<{ eventAction?: string; eventDate?: string }>;
@@ -801,60 +881,117 @@ export async function checkRdap(hostname: string, domainStatus: string): Promise
       }
 
       let creationDate: string | null = null;
+      let lastChangedDate: string | null = null;
+      let expirationDate: string | null = null;
       let domainAge: string | null = null;
+      let ageDays: number | null = null;
+
       for (const ev of data.events || []) {
-        if (ev.eventAction === "registration" || ev.eventAction === "created") {
-          if (ev.eventDate) {
-            creationDate = ev.eventDate.slice(0, 10);
-            try {
-              const created = new Date(ev.eventDate);
-              const now = new Date();
-              const diffMs = now.getTime() - created.getTime();
-              const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-              const years = Math.floor(days / 365);
-              if (years > 0) {
-                domainAge = `${years} year${years > 1 ? "s" : ""} old`;
-              } else {
-                const months = Math.floor(days / 30);
-                domainAge = months > 0 ? `${months} month${months > 1 ? "s" : ""} old` : `${days} days old`;
-              }
-            } catch {
-              // Ignore date math errors
+        if (!ev.eventDate) continue;
+        const shortDate = ev.eventDate.slice(0, 10);
+        if ((ev.eventAction === "registration" || ev.eventAction === "created") && !creationDate) {
+          creationDate = shortDate;
+          try {
+            const created = new Date(ev.eventDate);
+            const now = new Date();
+            const diffMs = now.getTime() - created.getTime();
+            ageDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+            const years = Math.floor(ageDays / 365);
+            if (years > 0) {
+              domainAge = `${years} year${years > 1 ? "s" : ""} old`;
+            } else {
+              const months = Math.floor(ageDays / 30);
+              domainAge = months > 0 ? `${months} month${months > 1 ? "s" : ""} old` : `${ageDays} day${ageDays !== 1 ? "s" : ""} old`;
             }
+          } catch {
+            // Ignore date parsing errors
           }
-          break;
+        } else if (ev.eventAction === "last changed" && !lastChangedDate) {
+          lastChangedDate = shortDate;
+        } else if (ev.eventAction === "expiration" && !expirationDate) {
+          expirationDate = shortDate;
         }
       }
 
       const summaryParts: string[] = [];
-      if (registrarName) summaryParts.push(`Registrar: ${registrarName}`);
-      if (creationDate) summaryParts.push(`Created ${creationDate}${domainAge ? ` (${domainAge})` : ""}`);
+      if (creationDate) {
+        summaryParts.push(`Registered ${creationDate}${domainAge ? ` (${domainAge})` : ""}`);
+      }
+      if (registrarName) {
+        summaryParts.push(`via ${registrarName}`);
+      }
 
-      if (summaryParts.length > 0) {
+      const summary = summaryParts.length > 0 ? summaryParts.join(" ") : `Registered domain ${registrableDomain}`;
+
+      return {
+        name: "Domain registration",
+        status: "available",
+        registrar: registrarName,
+        creation_date: creationDate,
+        domain_age: domainAge,
+        last_changed_date: lastChangedDate,
+        expiration_date: expirationDate,
+        age_days: ageDays,
+        summary,
+      };
+    }
+
+    if (res.status === 404) {
+      let bodyText = "";
+      try {
+        bodyText = await res.text();
+      } catch {
+        // Ignore
+      }
+      if (bodyText.toLowerCase().includes("no rdap service") || bodyText.toLowerCase().includes("not supported")) {
         return {
           name: "Domain registration",
-          status: "available",
-          registrar: registrarName,
-          creation_date: creationDate,
-          domain_age: domainAge,
-          summary: summaryParts.join(", "),
+          status: "unavailable",
+          summary: "This TLD does not publish RDAP data",
         };
       }
+      if (isFallback) {
+        try {
+          const parsed = JSON.parse(bodyText);
+          const title = String(parsed.title || "").toLowerCase();
+          if (title.includes("no rdap service") || title.includes("not supported")) {
+            return {
+              name: "Domain registration",
+              status: "unavailable",
+              summary: "This TLD does not publish RDAP data",
+            };
+          }
+        } catch {
+          // Ignore
+        }
+      }
+      return {
+        name: "Domain registration",
+        status: "not_found",
+        summary: "No registration record found for this domain",
+      };
     }
 
     return {
       name: "Domain registration",
       status: "unavailable",
-      summary: "Unavailable (RDAP registry lookup returned no record or unsupported TLD)",
+      summary: `Registry did not respond (HTTP ${res.status})`,
     };
-  } catch {
+  } catch (err: unknown) {
+    const isTimeout =
+      (err instanceof DOMException && err.name === "TimeoutError") ||
+      (err instanceof Error && err.name === "AbortError") ||
+      (err instanceof Error && err.message.toLowerCase().includes("timeout"));
+
+    const reason = isTimeout ? "timeout" : "connection error";
     return {
       name: "Domain registration",
       status: "unavailable",
-      summary: "Unavailable (RDAP lookup could not be completed)",
+      summary: `Registry did not respond (${reason})`,
     };
   }
 }
+
 
 export async function checkTls(
   hostname: string,
@@ -1129,6 +1266,26 @@ export async function executeScan(rawUrl: string, googleApiKey?: string): Promis
     ...lookalikeResult.findings,
     ...tlsCheckResult.findings,
   ];
+
+  if (rdapCheckResult.status === "available" && rdapCheckResult.age_days != null) {
+    if (rdapCheckResult.age_days < 30) {
+      candidateFindings.push({
+        id: "very_young_domain",
+        title: "Very Recently Registered Domain",
+        severity: "high",
+        points: 20,
+        explanation: `Domain was registered only ${rdapCheckResult.age_days} days ago (under 30 days). Recently registered domains are commonly associated with disposable phishing campaigns.`,
+      });
+    } else if (rdapCheckResult.age_days < 90) {
+      candidateFindings.push({
+        id: "young_domain",
+        title: "Recently Registered Domain",
+        severity: "medium",
+        points: 10,
+        explanation: `Domain was registered ${rdapCheckResult.age_days} days ago (under 90 days). New domains carry elevated inherent risk.`,
+      });
+    }
+  }
 
   for (const f of candidateFindings) {
     if (!seenIds.has(f.id)) {

@@ -56,11 +56,14 @@ export interface TlsCheck {
 
 export interface DomainRegistrationCheck {
   name: string;
-  status: "available" | "unavailable" | "skipped";
+  status: "available" | "unavailable" | "skipped" | "not_found";
   summary: string;
   registrar?: string | null;
   creation_date?: string | null;
   domain_age?: string | null;
+  expiration_date?: string | null;
+  last_changed_date?: string | null;
+  age_days?: number | null;
 }
 
 export interface LookalikeCheck {

@@ -43,6 +43,10 @@ RULE_POINTS: dict[str, int] = {
     "domain_resolves_private_ip": 20,
     "domain_not_found": 0,
     "invalid_tls_certificate": 25,
+
+    # Domain registration age
+    "very_young_domain": 20,
+    "young_domain": 10,
 }
 
 # Verdict Thresholds:

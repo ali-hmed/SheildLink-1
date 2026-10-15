@@ -58,11 +58,14 @@ class TlsCheck(BaseModel):
 
 class DomainRegistrationCheck(BaseModel):
     name: str = "Domain registration"
-    status: Literal["available", "unavailable", "skipped"]
+    status: Literal["available", "unavailable", "skipped", "not_found"]
     summary: str
     registrar: str | None = None
     creation_date: str | None = None
     domain_age: str | None = None
+    expiration_date: str | None = None
+    last_changed_date: str | None = None
+    age_days: int | None = None
 
 class LookalikeCheck(BaseModel):
     name: str = "Lookalike check"

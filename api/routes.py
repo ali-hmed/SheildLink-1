@@ -89,7 +89,7 @@ async def scan(request: Request, body: ScanRequest):
         check_domain_registration(
             hostname=hostname,
             domain_status=dns_result.status,
-            timeout=2.5
+            timeout=8.0
         )
     )
     rep_task = asyncio.create_task(
@@ -169,9 +169,29 @@ async def scan(request: Request, body: ScanRequest):
     )
 
     # Combine findings (avoiding duplicates by id)
+    rdap_findings: list[Finding] = []
+    if rdap_result.status == "available" and getattr(rdap_result, "age_days", None) is not None:
+        age = rdap_result.age_days
+        if age < 30:
+            rdap_findings.append(Finding(
+                id="very_young_domain",
+                title="Very Recently Registered Domain",
+                severity="high",
+                points=20,
+                explanation=f"Domain was registered only {age} days ago (under 30 days). Recently registered domains are commonly associated with disposable phishing campaigns."
+            ))
+        elif age < 90:
+            rdap_findings.append(Finding(
+                id="young_domain",
+                title="Recently Registered Domain",
+                severity="medium",
+                points=10,
+                explanation=f"Domain was registered {age} days ago (under 90 days). New domains carry elevated inherent risk."
+            ))
+
     all_findings: list[Finding] = []
     seen_ids = set()
-    for f in initial_findings + dns_findings + lookalike_findings + tls_findings:
+    for f in initial_findings + dns_findings + lookalike_findings + tls_findings + rdap_findings:
         if f.id not in seen_ids:
             seen_ids.add(f.id)
             all_findings.append(f)
