@@ -19,5 +19,9 @@
   ],
   "observability": {
     "enabled": true
+  },
+  "vars": {
+    // Set this to your deployed FastAPI backend URL:
+    // "BACKEND_URL": "https://your-fastapi-backend.example.com"
   }
 }

@@ -11,7 +11,10 @@ class Settings(BaseModel):
     allowed_origins: list[str] = Field(
         default_factory=lambda: [
             origin.strip()
-            for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+            for origin in os.getenv(
+                "ALLOWED_ORIGINS",
+                "http://localhost:3000,http://127.0.0.1:3000,https://sheildlink.aliahmedxdev9.workers.dev"
+            ).split(",")
             if origin.strip()
         ]
     )
