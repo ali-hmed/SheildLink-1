@@ -2,19 +2,20 @@ import React from "react";
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="w-full bg-white border-t border-[#EAECF0] py-7 sm:py-8 mt-12 sm:mt-[72px]">
-      <div className="max-w-[1200px] mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
-        <p className="order-2 sm:order-1 text-sm text-slate-600">
+    <footer className="w-full bg-white border-t-2 border-ink py-7 sm:py-8 mt-12 sm:mt-[72px]">
+      <div className="max-w-[1200px] mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
+        <p className="order-2 sm:order-1 text-sm font-bold text-ink">
           &copy; 2026 LinkShield
         </p>
 
-        <div className="order-1 sm:order-2 flex items-center">
+        {/* Small bordered buttons with hard shadows */}
+        <div className="order-1 sm:order-2 flex items-center gap-3">
           <a
             href="https://github.com/ali-hmed"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="View the developer on GitHub, opens in a new tab"
-            className="min-h-[44px] inline-flex items-center gap-2 text-sm text-slate-600 hover:text-[#111111] hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+            className="h-[38px] px-3.5 inline-flex items-center gap-2 rounded-[4px] border-2 border-ink bg-white hover:bg-primary font-heading font-extrabold text-[13px] text-ink shadow-brutal-sm hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#111111] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-100 cursor-pointer"
           >
             <svg
               className="w-4 h-4 shrink-0"
@@ -29,6 +30,24 @@ export const Footer: React.FC = () => {
               />
             </svg>
             <span>GitHub</span>
+          </a>
+
+          <a
+            href="https://x.com/intent/tweet?text=Check%20a%20link%20before%20you%20click%20it%20with%20LinkShield"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Share on X, opens in a new tab"
+            className="h-[38px] px-3.5 inline-flex items-center gap-2 rounded-[4px] border-2 border-ink bg-white hover:bg-primary font-heading font-extrabold text-[13px] text-ink shadow-brutal-sm hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#111111] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-100 cursor-pointer"
+          >
+            <svg
+              className="w-3.5 h-3.5 shrink-0"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+            <span>Share on X</span>
           </a>
         </div>
       </div>

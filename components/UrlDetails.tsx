@@ -33,22 +33,24 @@ export const UrlDetails: React.FC<UrlDetailsProps> = ({
   ];
 
   return (
-    <div className="space-y-3 py-4 border-b border-[#EAECF0]">
-      <h4 className="text-[12px] font-semibold uppercase tracking-wider text-slate-400">
-        URL Details
-      </h4>
+    <div className="space-y-3 py-4 border-b-2 border-ink">
+      <div className="flex items-center gap-2">
+        <h4 className="text-[12px] font-heading font-extrabold uppercase tracking-wider text-ink bg-primary px-2 py-0.5 border border-ink rounded-[2px] shadow-brutal-sm inline-block">
+          URL Details
+        </h4>
+      </div>
 
-      <div className="divide-y divide-[#EAECF0] rounded-xl border border-[#EAECF0] bg-white overflow-hidden">
+      <div className="divide-y-2 divide-ink rounded-[4px] border-2 border-ink bg-white overflow-hidden shadow-brutal-sm">
         {rows.map((row) => (
           <div
             key={row.key}
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 hover:bg-slate-50/50 transition-colors"
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3.5 hover:bg-paper/70 transition-colors"
           >
             <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 min-w-0 flex-1">
-              <span className="text-[13px] font-medium text-slate-500 sm:w-24 shrink-0">
+              <span className="text-[13px] font-heading font-bold text-ink sm:w-28 shrink-0 uppercase tracking-tight">
                 {row.label}
               </span>
-              <span className="font-mono text-[13px] text-[#111111] break-all select-all">
+              <span className="font-mono font-medium text-[13px] text-ink break-all select-all">
                 {row.value}
               </span>
             </div>
@@ -56,17 +58,17 @@ export const UrlDetails: React.FC<UrlDetailsProps> = ({
             <button
               type="button"
               onClick={() => copyToClipboard(row.value, row.key)}
-              className="self-end sm:self-center h-[34px] px-2.5 inline-flex items-center gap-1.5 rounded-lg border border-[#EAECF0] bg-white hover:bg-slate-50 text-[12px] font-medium text-slate-600 transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent cursor-pointer"
+              className="self-end sm:self-center h-[34px] px-3 inline-flex items-center gap-1.5 rounded-[4px] border-2 border-ink bg-white hover:bg-primary text-[12px] font-heading font-bold text-ink shadow-brutal-sm hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#111111] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-100 shrink-0 cursor-pointer"
               aria-label={`Copy ${row.label}`}
             >
               {copiedKey === row.key ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-green-600" aria-hidden="true" />
-                  <span className="text-green-700">Copied</span>
+                  <Check className="w-3.5 h-3.5 text-ink stroke-[3]" aria-hidden="true" />
+                  <span>Copied</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
+                  <Copy className="w-3.5 h-3.5 text-ink stroke-[2.5]" aria-hidden="true" />
                   <span>Copy</span>
                 </>
               )}

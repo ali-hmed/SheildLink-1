@@ -11,6 +11,7 @@ import { Footer } from "@/components/Footer";
 import { ScanResponse, HistoryItem } from "@/lib/types";
 import { scanUrl, ApiError } from "@/lib/api";
 import { loadHistory, saveScanToHistory, clearHistory } from "@/lib/history";
+import { Loader2 } from "lucide-react";
 
 export default function Home() {
   const [inputUrl, setInputUrl] = useState("");
@@ -94,11 +95,11 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-600 flex flex-col justify-between overflow-x-hidden">
+    <div className="min-h-screen bg-paper text-ink flex flex-col justify-between overflow-x-hidden selection:bg-primary selection:text-ink">
       {/* Accessible skip link */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 z-50 px-3.5 py-1.5 bg-accent text-white font-medium text-sm rounded-lg outline-none ring-2 ring-accent ring-offset-2"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 z-50 px-4 py-2 bg-primary text-ink font-heading font-extrabold text-sm border-2 border-ink rounded-[4px] shadow-brutal outline-none"
       >
         Skip to main content
       </a>
@@ -106,7 +107,7 @@ export default function Home() {
       {/* Header container: max-w-[1200px] */}
       <Header />
 
-      <main id="main-content" className="w-full flex-1">
+      <main id="main-content" className="w-full flex-1 pb-10">
         {/* Hero container: max-w-[880px] */}
         <Hero
           onScan={handleScan}
@@ -124,23 +125,31 @@ export default function Home() {
           <div
             ref={resultsRef}
             aria-live="polite"
-            className="w-full max-w-[760px] mx-auto px-5 sm:px-8 mt-10 sm:mt-14"
+            className="w-full max-w-[760px] mx-auto px-5 sm:px-8 mt-10 sm:mt-14 scroll-mt-20 sm:scroll-mt-24"
           >
+            {/* Blocky striped Neo-Brutalist skeleton loader (no shimmer gradients) */}
             {isLoading && !currentResult && (
               <div
-                className="w-full p-5 sm:p-6 rounded-2xl border border-[#EAECF0] bg-white space-y-4 animate-pulse"
+                className="w-full bg-white rounded-[4px] border-2 sm:border-3 border-ink p-5 sm:p-6 shadow-[4px_4px_0px_#111111] sm:shadow-[6px_6px_0px_#111111] space-y-4"
                 aria-busy="true"
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-slate-300" />
-                  <div className="h-5 bg-slate-200 rounded-md w-28" />
+                <div className="flex items-center justify-between border-b-2 border-ink pb-4">
+                  <div className="flex items-center gap-3">
+                    <Loader2 className="w-6 h-6 animate-spin text-ink stroke-[2.5]" aria-hidden="true" />
+                    <span className="font-heading font-extrabold text-lg text-ink uppercase tracking-tight">
+                      Analyzing URL...
+                    </span>
+                  </div>
+                  <div className="w-24 h-6 border-2 border-ink bg-primary rounded-[2px]" />
                 </div>
-                <div className="h-4 bg-slate-100 rounded-md w-3/4" />
-                <div className="divide-y divide-[#EAECF0] rounded-xl border border-[#EAECF0] bg-white overflow-hidden mt-4">
-                  {[...Array(6)].map((_, i) => (
+
+                <div className="h-5 skeleton-block rounded-[2px] w-3/4" />
+
+                <div className="divide-y-2 divide-ink rounded-[4px] border-2 border-ink bg-white overflow-hidden mt-4">
+                  {[...Array(5)].map((_, i) => (
                     <div key={i} className="p-3.5 space-y-2">
-                      <div className="h-3.5 bg-slate-200 rounded w-24" />
-                      <div className="h-3 bg-slate-100 rounded w-full" />
+                      <div className="h-4 skeleton-block rounded-[2px] w-36" />
+                      <div className="h-3.5 skeleton-block rounded-[2px] w-full" />
                     </div>
                   ))}
                 </div>

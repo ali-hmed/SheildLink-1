@@ -28,19 +28,23 @@ export const Hero: React.FC<HeroProps> = ({
       <div className="flex flex-col items-center text-center">
         {/*
           Heading:
-          Single line at >=1024px: font-size clamp(2.25rem, 4.2vw, 3.25rem), font-weight 600,
-          letter-spacing -0.02em, line-height 1.1, whitespace-nowrap on desktop only.
-          Mobile (<640px): 2 balanced lines, 28-30px, line-height 1.15, centered, never overflows.
+          Single line at >=1024px, font-heading, font-extrabold (700-800),
+          letter-spacing -0.02em, line-height 1.1, whitespace-nowrap on desktop.
+          Mobile (<640px): 2 balanced lines, 28-30px, line-height 1.15.
+          Decorative accent: 'click it.' in a solid yellow block with 2px border and hard shadow.
         */}
-        <h1 className="text-[28px] sm:text-[34px] lg:text-[clamp(2.25rem,4.2vw,3.25rem)] font-semibold text-[#111111] tracking-[-0.02em] leading-[1.15] lg:leading-[1.1] [text-wrap:balance] lg:whitespace-nowrap text-center">
-          Check a link before you click it.
+        <h1 className="text-[28px] sm:text-[34px] lg:text-[clamp(2.25rem,4.2vw,3.25rem)] font-heading font-extrabold text-ink tracking-tight leading-[1.15] lg:leading-[1.1] [text-wrap:balance] lg:whitespace-nowrap text-center">
+          Check a link before you{" "}
+          <span className="bg-primary text-ink px-2.5 py-0.5 border-2 border-ink rounded-[4px] shadow-brutal-sm inline-block">
+            click it.
+          </span>
         </h1>
 
         {/*
           Subtext:
-          16-17px desktop, 15px mobile, slate-600, max-w-[520px] centered, with 12px gap below heading.
+          16-17px desktop, 15px mobile, text-ink, weight 500, max-w-[520px] centered, with 14px gap below heading.
         */}
-        <p className="text-[15px] sm:text-[16px] lg:text-[17px] text-slate-600 max-w-[520px] mx-auto leading-normal text-center mt-3">
+        <p className="text-[15px] sm:text-[16px] lg:text-[17px] text-ink font-medium max-w-[520px] mx-auto leading-normal text-center mt-3.5">
           Paste any URL. We analyze it without opening it.
         </p>
 

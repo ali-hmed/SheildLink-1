@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertOctagon } from "lucide-react";
 
 interface UrlFormProps {
   onScan: (url: string) => Promise<void>;
@@ -51,45 +51,47 @@ export const UrlForm: React.FC<UrlFormProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full space-y-3"
+      className="w-full space-y-4"
       noValidate
       aria-label="URL Security Submission Form"
     >
       {/* 
-        Desktop (>=640px): one single row, input flex-1 h-56px, rounded-xl, 1px border.
-        Scan button inside field on the right (h-48px), fixed horizontal padding, never wrapping.
-        Mobile (<640px): stacked in two lines, input line 1, button line 2 (48px, gap-3).
+        Desktop (>=640px): one single row, 3px border, 5px hard shadow.
+        Mobile (<640px): stacked two lines, 2px border, 3px hard shadow.
+        Scan button: yellow, hover translates (-2px, -2px) shadow 7px, active translates (2px, 2px) shadow 0.
       */}
-      <div className="flex flex-col sm:relative gap-3 sm:gap-0 w-full">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-3.5 items-stretch w-full">
         <label htmlFor="url-input" className="sr-only">
           Paste a link to analyze
         </label>
-        <input
-          ref={inputRef}
-          id="url-input"
-          type="text"
-          value={inputUrl}
-          onChange={(e) => {
-            setInputUrl(e.target.value);
-            if (localValidation) setLocalValidation(null);
-          }}
-          placeholder="Paste any URL, e.g. example.com"
-          aria-invalid={activeError ? "true" : "false"}
-          disabled={isLoading}
-          className={`w-full h-[48px] sm:h-[56px] px-4 sm:pr-[118px] text-[16px] rounded-xl border border-[#EAECF0] bg-white outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors truncate ${
-            inputUrl ? "font-mono text-[#111111]" : "font-sans text-slate-400"
-          } placeholder:font-sans placeholder:text-slate-400`}
-        />
+        <div className="flex-1 relative">
+          <input
+            ref={inputRef}
+            id="url-input"
+            type="text"
+            value={inputUrl}
+            onChange={(e) => {
+              setInputUrl(e.target.value);
+              if (localValidation) setLocalValidation(null);
+            }}
+            placeholder="Paste any URL, e.g. example.com"
+            aria-invalid={activeError ? "true" : "false"}
+            disabled={isLoading}
+            className={`w-full h-[48px] sm:h-[56px] px-4 text-[16px] rounded-[4px] border-2 sm:border-3 border-ink bg-white shadow-[3px_3px_0px_#111111] sm:shadow-[5px_5px_0px_#111111] outline-none transition-colors truncate ${
+              inputUrl ? "font-mono font-medium text-ink" : "font-sans text-stone-500"
+            } placeholder:font-sans placeholder:text-stone-400`}
+          />
+        </div>
 
         <button
           type="submit"
           disabled={isLoading}
           aria-busy={isLoading}
-          className="w-full sm:w-auto h-[48px] px-6 inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-lg bg-accent hover:bg-accent-hover text-white text-[15px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer shrink-0 sm:absolute sm:right-1 sm:top-1"
+          className="w-full sm:w-auto h-[48px] sm:h-[56px] px-8 inline-flex items-center justify-center gap-2 rounded-[4px] border-2 sm:border-3 border-ink bg-primary text-ink font-heading font-extrabold text-[16px] sm:text-[17px] tracking-tight shadow-[3px_3px_0px_#111111] sm:shadow-[5px_5px_0px_#111111] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#111111] sm:hover:shadow-[7px_7px_0px_#111111] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-100 ease-out disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer shrink-0"
         >
           {isLoading ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin shrink-0" aria-hidden="true" />
+              <Loader2 className="w-5 h-5 animate-spin shrink-0 text-ink stroke-[2.5]" aria-hidden="true" />
               <span>Scanning...</span>
             </>
           ) : (
@@ -98,18 +100,21 @@ export const UrlForm: React.FC<UrlFormProps> = ({
         </button>
       </div>
 
-      {/* Error display with clear message and Retry */}
+      {/* High-red bordered banner error state */}
       {activeError && (
         <div
           role="alert"
-          className="p-3.5 rounded-xl bg-risk-high-bg border border-risk-high-border text-risk-high text-[14px] flex items-center justify-between gap-3 animate-fade-in"
+          className="p-3.5 sm:p-4 rounded-[4px] bg-risk-high border-2 sm:border-3 border-ink text-ink shadow-brutal flex items-center justify-between gap-3 animate-hard-fade-in font-medium text-[14px]"
         >
-          <span className="leading-snug">{activeError}</span>
+          <div className="flex items-center gap-2.5 min-w-0">
+            <AlertOctagon className="w-5 h-5 text-ink shrink-0 stroke-[2.5]" aria-hidden="true" />
+            <span className="leading-snug break-words font-semibold">{activeError}</span>
+          </div>
           {onRetry && (
             <button
               type="button"
               onClick={onRetry}
-              className="text-[13px] font-semibold underline hover:no-underline px-2.5 py-1 rounded bg-white border border-risk-high-border text-risk-high shrink-0 cursor-pointer min-h-[36px]"
+              className="px-3 py-1 rounded-[4px] bg-white border-2 border-ink text-ink font-bold text-[13px] shadow-brutal-sm hover:bg-primary active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-100 shrink-0 cursor-pointer min-h-[38px]"
             >
               Retry
             </button>

@@ -1,6 +1,7 @@
 import React from "react";
 import { VerdictLevel, Finding } from "@/lib/types";
 import { ScoreMeter } from "./ScoreMeter";
+import { CheckCircle2, AlertTriangle, AlertOctagon, HelpCircle } from "lucide-react";
 
 interface VerdictHeaderProps {
   verdict: VerdictLevel;
@@ -22,35 +23,35 @@ export const VerdictHeader: React.FC<VerdictHeaderProps> = ({
     switch (verdict) {
       case "site_not_found":
         return {
-          label: "Site not found",
-          dotClass: "bg-slate-400",
-          textClass: "text-slate-700",
+          label: "Site Not Found",
+          bandBg: "bg-risk-neutral",
+          icon: <HelpCircle className="w-6 h-6 sm:w-7 sm:h-7 text-ink stroke-[2.5]" aria-hidden="true" />,
         };
       case "high_risk":
         return {
           label: "High Risk",
-          dotClass: "bg-red-600",
-          textClass: "text-red-700",
+          bandBg: "bg-risk-high",
+          icon: <AlertOctagon className="w-6 h-6 sm:w-7 sm:h-7 text-ink stroke-[2.5]" aria-hidden="true" />,
         };
       case "suspicious":
         return {
           label: "Medium Risk",
-          dotClass: "bg-amber-600",
-          textClass: "text-amber-700",
+          bandBg: "bg-risk-medium",
+          icon: <AlertTriangle className="w-6 h-6 sm:w-7 sm:h-7 text-ink stroke-[2.5]" aria-hidden="true" />,
         };
       case "low_risk":
         return {
           label: "Low Risk",
-          dotClass: "bg-amber-500",
-          textClass: "text-amber-700",
+          bandBg: "bg-risk-low",
+          icon: <AlertTriangle className="w-6 h-6 sm:w-7 sm:h-7 text-ink stroke-[2.5]" aria-hidden="true" />,
         };
       case "safe":
       case "no_issues_detected":
       default:
         return {
           label: "Safe",
-          dotClass: "bg-green-600",
-          textClass: "text-green-700",
+          bandBg: "bg-risk-safe",
+          icon: <CheckCircle2 className="w-6 h-6 sm:w-7 sm:h-7 text-ink stroke-[2.5]" aria-hidden="true" />,
         };
     }
   };
@@ -67,7 +68,7 @@ export const VerdictHeader: React.FC<VerdictHeaderProps> = ({
           <button
             type="button"
             onClick={() => onRescan(suggestedUrl)}
-            className="text-accent underline font-mono font-medium hover:text-accent-hover focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded cursor-pointer"
+            className="inline-block px-2 py-0.5 border border-ink bg-primary font-mono font-bold text-ink hover:underline rounded-[2px] shadow-[2px_2px_0px_#111] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer"
           >
             {displayDomain}
           </button>
@@ -79,25 +80,31 @@ export const VerdictHeader: React.FC<VerdictHeaderProps> = ({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-[#EAECF0]">
-      <div className="space-y-1">
-        {/* Small status dot + verdict word. No big icon box! */}
-        <div className="flex items-center gap-2">
-          <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${meta.dotClass}`} aria-hidden="true" />
-          <h3 className={`text-[19px] sm:text-[21px] font-bold tracking-tight text-[#111111]`}>
+    <div className="-mx-5 -mt-5 sm:-mx-6 sm:-mt-6 mb-5">
+      {/* Solid risk-colored band across top of card with 2px/3px bottom border */}
+      <div
+        className={`w-full ${meta.bandBg} text-ink px-5 sm:px-6 py-4 sm:py-5 border-b-2 sm:border-b-3 border-ink flex flex-col sm:flex-row sm:items-center justify-between gap-3.5`}
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-1 rounded-[3px] border-2 border-ink bg-white/40 shrink-0">
+            {meta.icon}
+          </div>
+          <h3 className="text-[22px] sm:text-[26px] font-heading font-extrabold uppercase tracking-tight text-ink">
             {meta.label}
           </h3>
         </div>
 
-        {/* One-sentence plain-language summary */}
-        <p className="text-[14px] sm:text-[15px] text-slate-600 leading-relaxed max-w-xl">
-          {renderSummary()}
-        </p>
+        {/* Chunky score meter inside band */}
+        <div className="shrink-0 self-start sm:self-center">
+          <ScoreMeter score={score} verdict={verdict} />
+        </div>
       </div>
 
-      {/* Slim score bar (only when score exists) */}
-      <div className="shrink-0 self-start sm:self-center">
-        <ScoreMeter score={score} verdict={verdict} />
+      {/* One-line plain-language summary below on pure white */}
+      <div className="px-5 sm:px-6 pt-4 pb-1">
+        <p className="text-[15px] sm:text-[16px] text-ink font-medium leading-relaxed max-w-2xl">
+          {renderSummary()}
+        </p>
       </div>
     </div>
   );

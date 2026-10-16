@@ -1,17 +1,26 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-heading",
+  display: "swap",
+  weight: ["500", "600", "700"],
+});
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
   display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -24,7 +33,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: "light",
-  themeColor: "#FFFFFF",
+  themeColor: "#FFFBF0",
 };
 
 export default function RootLayout({
@@ -33,11 +42,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrains.variable}`}>
+    <html
+      lang="en"
+      className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrains.variable}`}
+    >
       <head>
+        <title>LinkShield — URL Security Analyzer</title>
         <meta name="color-scheme" content="light" />
       </head>
-      <body className="min-h-screen bg-white text-slate-600 antialiased font-sans selection:bg-blue-50 selection:text-blue-600">
+      <body className="min-h-screen bg-paper text-ink antialiased font-sans font-medium selection:bg-primary selection:text-ink">
         {children}
       </body>
     </html>
