@@ -64,10 +64,6 @@ export default function Home() {
     }
   };
 
-  const handleSelectExample = (url: string) => {
-    handleScan(url);
-  };
-
   const handleSelectFromHistory = (item: ScanResponse) => {
     setCurrentResult(item);
     setInputUrl(item.input_url);
@@ -115,7 +111,6 @@ export default function Home() {
           inputUrl={inputUrl}
           setInputUrl={setInputUrl}
           error={apiError}
-          onSelectExample={handleSelectExample}
           inputRef={inputRef}
           onRetry={handleRetry}
         />

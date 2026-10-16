@@ -1,6 +1,5 @@
 import React from "react";
 import { UrlForm } from "./UrlForm";
-import { ExampleChips } from "./ExampleChips";
 
 interface HeroProps {
   onScan: (url: string) => Promise<void>;
@@ -8,7 +7,6 @@ interface HeroProps {
   inputUrl: string;
   setInputUrl: (url: string) => void;
   error: string | null;
-  onSelectExample: (url: string) => void;
   inputRef?: React.RefObject<HTMLInputElement | null>;
   onRetry?: () => void;
 }
@@ -19,7 +17,6 @@ export const Hero: React.FC<HeroProps> = ({
   inputUrl,
   setInputUrl,
   error,
-  onSelectExample,
   inputRef,
   onRetry,
 }) => {
@@ -59,10 +56,6 @@ export const Hero: React.FC<HeroProps> = ({
             inputRef={inputRef}
             onRetry={onRetry}
           />
-          {/* Example chips with 16px gap below input */}
-          <div className="mt-4">
-            <ExampleChips onSelect={onSelectExample} disabled={isLoading} />
-          </div>
         </div>
       </div>
     </section>
