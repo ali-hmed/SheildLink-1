@@ -156,17 +156,17 @@ export default function Home() {
           onRetry={handleRetryScan}
         />
 
-        {/* Results Section container: max-w-[1200px] for balanced 2-column layout */}
+        {/* Results Section container: max-w-[880px] matching Hero container */}
         {(isLoading || currentResult) && (
           <div
             ref={resultsRef}
             aria-live="polite"
-            className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-14 scroll-mt-20 sm:scroll-mt-24"
+            className="w-full max-w-[880px] mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-14 scroll-mt-20 sm:scroll-mt-24"
           >
             {/* Blocky striped Neo-Brutalist skeleton loader while initial scan executes */}
             {isLoading && !currentResult && (
               <div
-                className="w-full max-w-[760px] mx-auto bg-white rounded-[4px] border-2 sm:border-3 border-ink p-5 sm:p-6 shadow-[4px_4px_0px_#111111] sm:shadow-[6px_6px_0px_#111111] space-y-4"
+                className="w-full bg-white rounded-[4px] border-2 sm:border-3 border-ink p-5 sm:p-6 shadow-[4px_4px_0px_#111111] sm:shadow-[6px_6px_0px_#111111] space-y-4"
                 aria-busy="true"
               >
                 <div className="flex items-center justify-between border-b-2 border-ink pb-4">
