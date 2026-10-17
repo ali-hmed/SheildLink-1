@@ -8,15 +8,17 @@ import { HistoryList } from "@/components/HistoryList";
 import { HowItWorks } from "@/components/HowItWorks";
 import { Limitations } from "@/components/Limitations";
 import { Footer } from "@/components/Footer";
-import { ScanResponse, HistoryItem } from "@/lib/types";
-import { scanUrl, ApiError } from "@/lib/api";
+import { ScanResponse, HistoryItem, PreviewResponse } from "@/lib/types";
+import { scanUrl, fetchPreview, ApiError } from "@/lib/api";
 import { loadHistory, saveScanToHistory, clearHistory } from "@/lib/history";
 import { Loader2 } from "lucide-react";
 
 export default function Home() {
   const [inputUrl, setInputUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [currentResult, setCurrentResult] = useState<ScanResponse | null>(null);
+  const [currentPreview, setCurrentPreview] = useState<PreviewResponse | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
@@ -30,10 +32,25 @@ export default function Home() {
 
   const handleScan = async (urlToScan: string) => {
     setIsLoading(true);
+    setIsPreviewLoading(true);
     setApiError(null);
+    setCurrentPreview(null);
     lastScannedUrl.current = urlToScan;
     setInputUrl(urlToScan);
 
+    // 1. Kick off website preview concurrently without blocking the security scan
+    fetchPreview(urlToScan)
+      .then((previewData) => {
+        setCurrentPreview(previewData);
+      })
+      .catch((err) => {
+        console.warn("[LinkShield] Preview fetch warning:", err);
+      })
+      .finally(() => {
+        setIsPreviewLoading(false);
+      });
+
+    // 2. Execute security scan
     try {
       const result = await scanUrl(urlToScan);
       setCurrentResult(result);
@@ -58,9 +75,22 @@ export default function Home() {
     }
   };
 
-  const handleRetry = () => {
+  const handleRetryScan = () => {
     if (lastScannedUrl.current) {
       handleScan(lastScannedUrl.current);
+    }
+  };
+
+  const handleRetryPreview = async () => {
+    if (!lastScannedUrl.current) return;
+    setIsPreviewLoading(true);
+    try {
+      const previewData = await fetchPreview(lastScannedUrl.current);
+      setCurrentPreview(previewData);
+    } catch (err) {
+      console.warn("[LinkShield] Preview retry error:", err);
+    } finally {
+      setIsPreviewLoading(false);
     }
   };
 
@@ -68,6 +98,16 @@ export default function Home() {
     setCurrentResult(item);
     setInputUrl(item.input_url);
     setApiError(null);
+    lastScannedUrl.current = item.input_url;
+
+    // Load preview for selected history entry
+    setIsPreviewLoading(true);
+    setCurrentPreview(null);
+    fetchPreview(item.input_url)
+      .then((data) => setCurrentPreview(data))
+      .catch((err) => console.warn("[LinkShield] History item preview error:", err))
+      .finally(() => setIsPreviewLoading(false));
+
     setTimeout(() => {
       if (resultsRef.current) {
         resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -83,6 +123,7 @@ export default function Home() {
   const handleScanAnother = () => {
     setInputUrl("");
     setCurrentResult(null);
+    setCurrentPreview(null);
     setApiError(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
     setTimeout(() => {
@@ -112,27 +153,27 @@ export default function Home() {
           setInputUrl={setInputUrl}
           error={apiError}
           inputRef={inputRef}
-          onRetry={handleRetry}
+          onRetry={handleRetryScan}
         />
 
-        {/* Results Section container: max-w-[760px], 56px desktop / 40px mobile below hero */}
+        {/* Results Section container: max-w-[1200px] for balanced 2-column layout */}
         {(isLoading || currentResult) && (
           <div
             ref={resultsRef}
             aria-live="polite"
-            className="w-full max-w-[760px] mx-auto px-5 sm:px-8 mt-10 sm:mt-14 scroll-mt-20 sm:scroll-mt-24"
+            className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-14 scroll-mt-20 sm:scroll-mt-24"
           >
-            {/* Blocky striped Neo-Brutalist skeleton loader (no shimmer gradients) */}
+            {/* Blocky striped Neo-Brutalist skeleton loader while initial scan executes */}
             {isLoading && !currentResult && (
               <div
-                className="w-full bg-white rounded-[4px] border-2 sm:border-3 border-ink p-5 sm:p-6 shadow-[4px_4px_0px_#111111] sm:shadow-[6px_6px_0px_#111111] space-y-4"
+                className="w-full max-w-[760px] mx-auto bg-white rounded-[4px] border-2 sm:border-3 border-ink p-5 sm:p-6 shadow-[4px_4px_0px_#111111] sm:shadow-[6px_6px_0px_#111111] space-y-4"
                 aria-busy="true"
               >
                 <div className="flex items-center justify-between border-b-2 border-ink pb-4">
                   <div className="flex items-center gap-3">
                     <Loader2 className="w-6 h-6 animate-spin text-ink stroke-[2.5]" aria-hidden="true" />
                     <span className="font-heading font-extrabold text-lg text-ink uppercase tracking-tight">
-                      Analyzing URL...
+                      Analyzing URL &amp; Link Intelligence...
                     </span>
                   </div>
                   <div className="w-24 h-6 border-2 border-ink bg-primary rounded-[2px]" />
@@ -154,16 +195,19 @@ export default function Home() {
             {currentResult && (
               <ResultPanel
                 result={currentResult}
+                preview={currentPreview}
+                previewLoading={isPreviewLoading}
                 onScanAnother={handleScanAnother}
                 onRescan={handleScan}
+                onRetryPreview={handleRetryPreview}
               />
             )}
           </div>
         )}
 
-        {/* Recent Scans container: max-w-[760px], 72px desktop / 48px mobile gap */}
+        {/* Recent Scans container: max-w-[880px], 72px desktop / 48px mobile gap */}
         {history.length > 0 && (
-          <div className="w-full max-w-[760px] mx-auto px-5 sm:px-8 mt-12 sm:mt-[72px]">
+          <div className="w-full max-w-[880px] mx-auto px-5 sm:px-8 mt-12 sm:mt-[72px]">
             <HistoryList
               history={history}
               onSelect={handleSelectFromHistory}
@@ -172,12 +216,12 @@ export default function Home() {
           </div>
         )}
 
-        {/* How It Works container: max-w-[760px], 72px desktop / 48px mobile gap */}
+        {/* How It Works container: max-w-[880px], 72px desktop / 48px mobile gap */}
         <div className="w-full mt-12 sm:mt-[72px]">
           <HowItWorks />
         </div>
 
-        {/* Limitations container: max-w-[760px], 72px desktop / 48px mobile gap */}
+        {/* Limitations container: max-w-[880px], 72px desktop / 48px mobile gap */}
         <div className="w-full mt-12 sm:mt-[72px]">
           <Limitations />
         </div>

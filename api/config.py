@@ -23,5 +23,12 @@ class Settings(BaseModel):
     )
     reputation_timeout_seconds: float = 5.0
     max_url_length: int = 2048
+    screenshot_service_url: str = Field(
+        default_factory=lambda: os.getenv("SCREENSHOT_SERVICE_URL", "https://api.microlink.io").strip()
+    )
+    preview_cache_ttl_seconds: int = Field(
+        default_factory=lambda: int(os.getenv("PREVIEW_CACHE_TTL_SECONDS", "600"))
+    )
+    preview_timeout_seconds: float = 8.0
 
 settings = Settings()

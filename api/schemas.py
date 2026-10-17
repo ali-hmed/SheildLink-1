@@ -105,3 +105,25 @@ class ScanResponse(BaseModel):
 class HealthResponse(BaseModel):
     status: Literal["ok"]
     reputation_provider: Literal["configured", "not_configured"]
+
+PreviewStatus = Literal["ready", "screenshot_failed", "failed", "blocked", "site_not_found"]
+ScreenshotStatus = Literal["available", "failed", "unsupported", "pending"]
+
+class PreviewRequest(BaseModel):
+    url: str = Field(..., description="The URL to generate preview and link intelligence for")
+
+class PreviewResponse(BaseModel):
+    input_url: str
+    final_url: str
+    domain: str
+    title: str | None = None
+    description: str | None = None
+    favicon_url: str | None = None
+    og_image_url: str | None = None
+    screenshot_url: str | None = None
+    screenshot_status: ScreenshotStatus = "available"
+    screenshot_error: str | None = None
+    redirect_chain: list[str] = Field(default_factory=list)
+    status: PreviewStatus = "ready"
+    error_message: str | None = None
+    generated_at: str

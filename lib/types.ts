@@ -120,3 +120,23 @@ export interface HistoryItem {
   scanned_at: string;
   response: ScanResponse;
 }
+
+export type PreviewStatus = "ready" | "screenshot_failed" | "failed" | "blocked" | "site_not_found";
+export type ScreenshotStatus = "available" | "failed" | "unsupported" | "pending";
+
+export interface PreviewResponse {
+  input_url: string;
+  final_url: string;
+  domain: string;
+  title?: string | null;
+  description?: string | null;
+  favicon_url?: string | null;
+  og_image_url?: string | null;
+  screenshot_url?: string | null;
+  screenshot_status: ScreenshotStatus;
+  screenshot_error?: string | null;
+  redirect_chain: string[];
+  status: PreviewStatus;
+  error_message?: string | null;
+  generated_at: string;
+}

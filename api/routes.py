@@ -7,7 +7,7 @@ from api.schemas import (
     ScanRequest, ScanResponse, HealthResponse,
     ChecksResult, UrlStructureCheck, DnsCheck, TlsCheck,
     DomainRegistrationCheck, LookalikeCheck, SafeBrowsingCheck,
-    Finding
+    Finding, PreviewRequest, PreviewResponse
 )
 from api.analyzer import analyze_url, ValidationError
 from api.scoring import calculate_score, determine_verdict
@@ -17,6 +17,7 @@ from api.dns_check import check_domain_lookup
 from api.tls_check import check_tls
 from api.rdap_check import check_domain_registration
 from api.lookalike_check import check_lookalike
+from api.preview import generate_preview
 import asyncio
 
 router = APIRouter(prefix="/api")
@@ -243,3 +244,23 @@ async def scan(request: Request, body: ScanRequest):
         domain_lookup=dns_result,
         scanned_at=datetime.now(timezone.utc).isoformat()
     )
+
+
+@router.post("/preview", response_model=PreviewResponse)
+async def preview(request: Request, body: PreviewRequest):
+    client_ip = request.client.host if request.client else "127.0.0.1"
+
+    if not check_rate_limit(client_ip, limit=settings.rate_limit_per_minute):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Rate limit exceeded. Please wait a moment before requesting another preview."
+        )
+
+    try:
+        response = await generate_preview(body.url)
+        return response
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unable to generate website preview: {str(e)}"
+        )

@@ -1,4 +1,4 @@
-import { ScanResponse, HealthResponse } from "./types";
+import { ScanResponse, HealthResponse, PreviewResponse } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
@@ -30,6 +30,31 @@ export async function scanUrl(url: string): Promise<ScanResponse> {
 
   if (!res.ok) {
     let errMsg = `Scan failed with status ${res.status}`;
+    try {
+      const data = await res.json();
+      if (data && data.detail) {
+        errMsg = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail);
+      }
+    } catch {
+      // Use fallback error message
+    }
+    throw new ApiError(errMsg, res.status);
+  }
+
+  return res.json();
+}
+
+export async function fetchPreview(url: string): Promise<PreviewResponse> {
+  const res = await fetch(`${API_BASE}/api/preview`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ url }),
+  });
+
+  if (!res.ok) {
+    let errMsg = `Preview generation failed with status ${res.status}`;
     try {
       const data = await res.json();
       if (data && data.detail) {
